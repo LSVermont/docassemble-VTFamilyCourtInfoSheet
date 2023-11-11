@@ -1,0 +1,556 @@
+---
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ALAnyState:any_state.yml
+---
+metadata:
+  title: >-
+    Family court information sheet
+  short title: >-
+    Family court info sheet
+  description: |-
+    This interview helps someone in Vermont fill in the Family Court Information Sheet. The form is required for many family court cases. It is required when you file for a divorce.
+  tags:
+    - "FA-06-00-00-00"
+  authors:
+    - VTCourtForms by Legal Services Vermont
+  original_form:
+    - https://vtlawhelp.org/roadmap/divorce/step-3
+  help_page_url: >-
+    https://vtlawhelp.org/roadmap/divorce/step-3
+  help_page_title: >-
+    Divorce Roadmap
+  allowed_courts: []
+  typical_role: "plaintiff"
+  al_weaver_version: "1.10.2"
+  generated_on: "2023-11-11"
+---
+code: |
+  # This controls the default country and list of states in address field questions
+  AL_DEFAULT_COUNTRY = "US"
+---
+code: |
+  # This controls the default state in address field questions
+  AL_DEFAULT_STATE = "VT"
+---
+code: |
+  github_repo_name =  'docassemble-BInfoSheetFamilyCourt'
+---
+code: |
+  interview_short_title = "Fill in the Vermont Family Court Information Sheet"
+---
+code: |
+  al_form_type = "starts_case" 
+---
+objects:
+  - users: ALPeopleList.using(ask_number=True,target_number=1)
+---
+sections:
+  - review_b_info_sheet_family_court: Review your answers
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_b_info_sheet_family_court
+code: |
+  # Set the allowed courts for this interview
+  allowed_courts = []
+  nav.set_section("review_b_info_sheet_family_court")
+  user_role = "plaintiff"
+  user_ask_role = "plaintiff"
+  trial_court.address.address
+  docket_number
+  OCS_filing_form_yes
+  set_progress(12)
+  users.gather()
+  set_parts(subtitle=str(users))
+  users[0].address.address
+  users1_address_mailing
+  set_progress(24)
+  users[0].email
+  users1_birth_month
+  users1_gets_public_assistance
+  set_progress(36)
+  users1_attorneys_name
+  other_parties.gather()
+  other_parties[0].address.address
+  set_progress(48)
+  other_parties1_address_mailing
+  other_parties1_daytime_phone_number
+  other_parties[0].email
+  set_progress(60)
+  other_parties1_birth_month
+  other_parties1_gets_child_support
+  other_parties1_attorneys_name
+  set_progress(72)
+  other_family_juv_probate_proceedings
+  interview_order_b_info_sheet_family_court = True
+---
+###################### Main order ######################
+comment: |
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
+code: |
+  al_intro_screen
+  b_info_sheet_family_court_intro
+  interview_order_b_info_sheet_family_court
+  signature_date
+  # Store anonymous data for analytics / statistics
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  b_info_sheet_family_court_download
+---
+comment: |
+  This question is used to introduce your interview. Please customize
+id: Family_court_information_sheet
+continue button field: b_info_sheet_family_court_intro
+question: |
+  Family court information sheet
+subquestion: |
+  This interview will help you fill in the Vermont Family Court Information Sheet.
+  
+  Before you get started, please gather:
+  
+  1. 
+  1. 
+  1. 
+  
+  When you are finished, you will need to:
+  
+  1. 
+  1. 
+  
+  Most people take about _______ minutes to finish this interview.
+---
+id: users birthdate
+question: |
+  Your birthdate
+fields:
+  - "Month of your birth": users1_birth_month
+    maxlength: 2
+  - "Day": users1_birth_day
+    maxlength: 2
+  - "Year - last two digits": users1_birth_year
+    maxlength: 2
+---
+id: users address and phone number
+question: |
+  Your address and phone number
+fields:
+  - "Your mailing address": users1_address_mailing
+    maxlength: 42
+  - "Your daytime phone number": users1_daytime_phone_number
+    maxlength: 17
+  - "Your evening phone number": users1_evening_phone_number
+    maxlength: 17
+---
+id: users lawyer
+question: |
+  Your lawyer
+fields:
+  - "Your lawyer's name": users1_attorneys_name
+    maxlength: 20
+  - "Your lawyer's phone number": users1_attorneys_phone_number
+    maxlength: 21
+---
+id: users benefits or child support
+question: |
+  Any benefits or child support
+fields:
+  - note: |
+      Check all that apply.
+      
+      Public assistance can include help from Vermont's Department of Economic Services such as Reach-Up, Dr. Dynasaur, Medicaid, or Post Secondary Education Stipend (PSE).
+
+  - "I get public assistance": users1_gets_public_assistance
+    datatype: yesno
+    
+  - "I get child support": users1_gets_child_support
+    datatype: yesno
+---
+id: defendants birthdate
+question: |
+  Defendant's birthdate
+fields:
+  - "Month of defendant's birth": other_parties1_birth_month
+    maxlength: 2
+  - "Day": other_parties1_birth_day
+    maxlength: 2
+  - "Year - last 2 digits": other_parties1_birth_year
+    maxlength: 2
+---
+id: defendants mailing address
+question: |
+  Defendant's mailing address
+fields:
+  - "Defendant's mailing address": other_parties1_address_mailing
+    maxlength: 44
+---
+id: defendants phone numbers
+question: |
+  Defendant's phone numbers
+fields:
+  - "Defendant's daytime phone number": other_parties1_daytime_phone_number
+    maxlength: 17
+  - "Defendant's evening phone number": other_parties1_evening_phone_number
+    maxlength: 17
+---
+id: defendants lawyer
+question: |
+  Defendant's lawyer
+fields:
+  - "Defendant's lawyer's name": other_parties1_attorneys_name
+    maxlength: 20
+  - "Defendant's lawyer's phone number": other_parties1_attorneys_phone_number
+    maxlength: 24
+---
+id: defendant gets child support
+question: |
+  Defendant gets child support?
+fields:
+  - "Does defendant get child support?": other_parties1_gets_child_support
+    datatype: yesno
+---
+id: office of child support
+question: |
+  Office of Child Support
+fields:
+  - "Check this box if the Vermont Office of Child Support is filing this form.": OCS_filing_form_yes
+    datatype: yesno
+---
+id: other court proceedings
+question: |
+  Other court proceedings
+fields:
+  - "Are there other family court, probate court or juvenile court cases involving yourself, the other party and/or your children?": other_family_juv_probate_proceedings
+    datatype: yesnoradio
+  - "How many?": number_of_proceedings
+    datatype: integer
+    maxlength: 2
+    show if: other_family_juv_probate_proceedings
+  - "In what county?": trial_court_county_other_filing1
+    maxlength: 30
+  - "In what court division (family court, probate court or juvenile court)?": trial_court_division_other_filing1
+    maxlength: 30
+  - "In what state?": trial_court_state_other_filing1
+    code: |
+      states_list()
+  - "In what county?": trial_court_county_other_filing2
+    maxlength: 30
+  - "In what court division (family court, probate court or juvenile court)?": trial_court_division_other_filing2
+    maxlength: 30
+  - "In what state?": trial_court_state_other_filing2
+    code: |
+      states_list()
+---
+id: preview family_court_info_sheet
+question: |
+  Preview your form before you sign it
+subquestion: |
+  Here is a preview of the form you will sign on the next page.   
+  
+  ${ al_court_bundle.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_b_info_sheet_family_court'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue and sign your form.
+continue button field: b_info_sheet_family_court_preview_question    
+---
+code: |
+  signature_fields = []
+---
+code: |
+  # This is a placeholder for the addresses that will be searched
+  # for matching address to court. Edit if court venue is based on 
+  # a different address than the user's
+  [user.address.address for user in users.complete_elements()]
+  addresses_to_search = [user.address for user in users.complete_elements()]
+---
+id: info sheet review screen
+event: review_b_info_sheet_family_court
+question: |
+  Review your answers
+review:
+  - Edit: docket_number
+    button: |
+      **Docket number**:
+      ${ docket_number }
+  - Edit: trial_court
+    button: |
+      **Trial court**
+  
+      % if defined("trial_court.address.county"):
+      * address: ${ trial_court.address.block() }
+      % endif
+  - Edit: users.revisit
+    button: |
+      **Users**
+
+      % for item in users:
+        * ${ item }
+      % endfor
+  - Edit: other_parties.revisit
+    button: |
+      **Other parties**
+
+      % for item in other_parties:
+        * ${ item }
+      % endfor
+  - Edit: users1_birth_month
+    button: |
+      **Month of your birth**:
+      ${ users1_birth_month }
+  - Edit: users1_birth_day
+    button: |
+      **Day**:
+      ${ users1_birth_day }
+  - Edit: users1_birth_year
+    button: |
+      **Year**:
+      ${ users1_birth_year }
+  - Edit: other_parties1_birth_month
+    button: |
+      **Month of defendant's birth**:
+      ${ other_parties1_birth_month }
+  - Edit: other_parties1_birth_day
+    button: |
+      **Day**:
+      ${ other_parties1_birth_day }
+  - Edit: other_parties1_birth_year
+    button: |
+      **Year**:
+      ${ other_parties1_birth_year }
+  - Edit: users1_address_mailing
+    button: |
+      **Your mailing address**:
+      ${ users1_address_mailing }
+  - Edit: other_parties1_address_mailing
+    button: |
+      **Defendant's mailing address**:
+      ${ other_parties1_address_mailing }
+  - Edit: users1_daytime_phone_number
+    button: |
+      **Your daytime phone number**:
+      ${ users1_daytime_phone_number }
+  - Edit: other_parties1_daytime_phone_number
+    button: |
+      **Defendant's daytime phone number**:
+      ${ other_parties1_daytime_phone_number }
+  - Edit: users1_evening_phone_number
+    button: |
+      **Your evening phone number**:
+      ${ users1_evening_phone_number }
+  - Edit: other_parties1_evening_phone_number
+    button: |
+      **Defendant's evening phone number**:
+      ${ other_parties1_evening_phone_number }
+  - Edit: other_parties1_attorneys_name
+    button: |
+      **Defendant's lawyer's name**:
+      ${ other_parties1_attorneys_name }
+  - Edit: other_parties1_attorneys_phone_number
+    button: |
+      **Defendant's lawyer's phone number**:
+      ${ other_parties1_attorneys_phone_number }
+  - Edit: users1_attorneys_name
+    button: |
+      **Your lawyer's name**:
+      ${ users1_attorneys_name }
+  - Edit: users1_attorneys_phone_number
+    button: |
+      **Your lawyer's phone number**:
+      ${ users1_attorneys_phone_number }
+  - Edit: OCS_filing_form_yes
+    button: |
+      **Is Vermont Office of Child Support filing this form?**:
+      ${ word(yesno(OCS_filing_form_yes)) }
+  - Edit: users1_gets_public_assistance
+    button: |
+      **Do you get public assistance?**:
+      ${ word(yesno(users1_gets_public_assistance)) }
+  - Edit: users1_gets_child_support
+    button: |
+      **Do you get child support?**:
+      ${ word(yesno(users1_gets_child_support)) }
+  - Edit: other_parties1_gets_child_support
+    button: |
+      **Does defendant get child support?**:
+      ${ word(yesno(other_parties1_gets_child_support)) }
+  - Edit: other_family_juv_probate_proceedings
+    button: |
+      **Are there other family court proceedings?**:
+      ${ word(yesno(other_family_juv_probate_proceedings)) }
+  - Edit: trial_court_county_other_filing1
+    button: |
+      **In this county**:
+      ${ trial_court_county_other_filing1 }
+  - Edit: trial_court_division_other_filing1
+    button: |
+      **In this court division**:
+      ${ trial_court_division_other_filing1 }
+  - Edit: trial_court_state_other_filing1
+    button: |
+      **In this state**:
+      ${ trial_court_state_other_filing1 }
+  - Edit: trial_court_division_other_filing2
+    button: |
+      **In this court division**:
+      ${ trial_court_division_other_filing2 }
+  - Edit: trial_court_county_other_filing2
+    button: |
+      **In this county**:
+      ${ trial_court_county_other_filing2 }
+  - Edit: trial_court_state_other_filing2
+    button: |
+      **In this state**:
+      ${ trial_court_state_other_filing2 }
+---
+continue button field: users.revisit
+question: |
+  Edit users
+subquestion: |
+  ${ users.table }
+
+  ${ users.add_action() }
+---
+table: users.table
+rows: users
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - Address: |
+      row_item.address.block() if defined("row_item.address.state") else ""
+  - Email: |
+      row_item.email if defined("row_item.email") else ""
+edit:
+  - name.first
+  - address.state
+  - email
+confirm: True
+
+---
+continue button field: other_parties.revisit
+question: |
+  Edit other_parties
+subquestion: |
+  ${ other_parties.table }
+
+  ${ other_parties.add_action() }
+---
+table: other_parties.table
+rows: other_parties
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - Address: |
+      row_item.address.block() if defined("row_item.address.state") else ""
+  - Email: |
+      row_item.email if defined("row_item.email") else ""
+edit:
+  - name.first
+  - address.state
+  - email
+confirm: True
+
+---
+id: download info sheet
+event: b_info_sheet_family_court_download
+question: |
+  All done
+subquestion: |
+  Thank you ${users}. Your form is ready to download and deliver.
+  
+  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+
+  ${ action_button_html(url_action('review_b_info_sheet_family_court'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+
+progress: 100
+---
+# ALDocument objects specify the metadata for each template
+objects:
+  - b_info_sheet_family_court_Post_interview_instructions: ALDocument.using(title="Instructions", filename="b_info_sheet_family_court_next_steps.docx", enabled=True, has_addendum=False)
+  - b_info_sheet_family_court_attachment: ALDocument.using(title="Family court information sheet", filename="b_info_sheet_family_court", enabled=True, has_addendum=False, )
+---
+# Bundles group the ALDocuments into separate downloads, such as for court and for the user
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[b_info_sheet_family_court_Post_interview_instructions, b_info_sheet_family_court_attachment], filename="b_info_sheet_family_court", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[b_info_sheet_family_court_attachment],  filename="b_info_sheet_family_court", title="All forms to deliver to court", enabled=True)
+---
+# Each attachment defines a key in an ALDocument. We use `i` as the placeholder here so the same template is 
+# used for "preview" and "final" keys, and logic in the template checks the value of 
+# `i` to show or hide the user's signature
+attachment:
+  name: Post-interview-Instructions
+  filename: b_info_sheet_family_court_next_steps
+  docx template file: b_info_sheet_family_court_next_steps.docx
+  variable name: b_info_sheet_family_court_Post_interview_instructions[i]
+  skip undefined: True
+  tagged pdf: True
+---
+attachment:
+  name: b info sheet family court
+  filename: b_info_sheet_family_court
+  variable name: b_info_sheet_family_court_attachment[i]
+  skip undefined: True
+  pdf template file: b_info_sheet_family_court.pdf
+  fields:
+      - "docket_number": ${ docket_number }
+      - "trial_court_county": ${ trial_court.address.county }
+      - "users1_name": ${ users[0] }
+      - "other_parties1_name": ${ other_parties[0] }
+      - "users1_birth_month": ${ users1_birth_month }
+      - "users1_birth_day": ${ users1_birth_day }
+      - "users1_birth_year": ${ users1_birth_year }
+      - "other_parties1_birth_month": ${ other_parties1_birth_month }
+      - "other_parties1_birth_day": ${ other_parties1_birth_day }
+      - "other_parties1_birth_year": ${ other_parties1_birth_year }
+      - "users1_address_address": ${ users[0].address.address }
+      - "other_parties1_address_address": ${ other_parties[0].address.address }
+      - "users1_address_mailing": ${ users1_address_mailing }
+      - "other_parties1_address_mailing": ${ other_parties1_address_mailing }
+      - "other_parties1_address_zip": ${ other_parties[0].address.zip }
+      - "users1_address_city": ${ users[0].address.city }
+      - "other_parties1_address_city": ${ other_parties[0].address.city }
+      - "users1_address_zip": ${ users[0].address.zip }
+      - "other_parties1_address_state": ${ other_parties[0].address.state }
+      - "users1_address_state": ${ users[0].address.state }
+      - "users1_daytime_phone_number": ${ users1_daytime_phone_number }
+      - "other_parties1_daytime_phone_number": ${ other_parties1_daytime_phone_number }
+      - "users1_evening_phone_number": ${ users1_evening_phone_number }
+      - "other_parties1_evening_phone_number": ${ other_parties1_evening_phone_number }
+      - "users1_email": ${ users[0].email }
+      - "other_parties1_email": ${ other_parties[0].email }
+      - "other_parties1_attorneys_name": ${ other_parties1_attorneys_name }
+      - "other_parties1_attorneys_phone_number": ${ other_parties1_attorneys_phone_number }
+      - "users1_attorneys_name": ${ users1_attorneys_name }
+      - "users1_attorneys_phone_number": ${ users1_attorneys_phone_number }
+      - "OCS_filing_form_yes": ${ OCS_filing_form_yes }
+      - "users1_gets_public_assistance": ${ users1_gets_public_assistance }
+      - "users1_gets_child_support": ${ users1_gets_child_support }
+      - "other_parties1_gets_child_support": ${ other_parties1_gets_child_support }
+      - "other_family_juv_probate_proceedings_yes": ${ other_family_juv_probate_proceedings }
+      - "other_family_juv_probate_proceedings_no": ${ not other_family_juv_probate_proceedings }
+      - "trial_court_county_other_filing1": ${ trial_court_county_other_filing1 }
+      - "trial_court_division_other_filing1": ${ trial_court_division_other_filing1 }
+      - "trial_court_state_other_filing1": ${ trial_court_state_other_filing1 }
+      - "trial_court_division_other_filing2": ${ trial_court_division_other_filing2 }
+      - "trial_court_county_other_filing2": ${ trial_court_county_other_filing2 }
+      - "trial_court_state_other_filing2": ${ trial_court_state_other_filing2 }
+
+
+
