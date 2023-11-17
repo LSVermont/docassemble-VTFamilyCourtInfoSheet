@@ -1,3 +1,4 @@
+#start up again at defendant's address. I added other_parties and children as objects
 ---
 include:
   - docassemble.AssemblyLine:assembly_line.yml
@@ -44,6 +45,8 @@ code: |
 ---
 objects:
   - users: ALPeopleList.using(ask_number=True,target_number=1)
+  - other_parties: ALPeopleList.using(ask_number=True,target_number=1)
+  - children: ALPeopleList.using(ask_number=True,complete_attribute="complete")
 ---
 sections:
   - review_b_info_sheet_family_court: Review your answers
@@ -65,17 +68,15 @@ code: |
   users.gather()
   set_parts(subtitle=str(users))
   users[0].address.address
-  users1_address_mailing
   set_progress(24)
-  users[0].email
-  users1_birth_month
+  users1_daytime_phone_number
+  users[0].birthdate
   users1_gets_public_assistance
   set_progress(36)
   users1_attorneys_name
   other_parties.gather()
   other_parties[0].address.address
   set_progress(48)
-  other_parties1_address_mailing
   other_parties1_daytime_phone_number
   other_parties[0].email
   set_progress(60)
@@ -128,6 +129,50 @@ subquestion: |
   
   Most people take about _______ minutes to finish this interview.
 ---
+id: Gather users street address
+sets:
+  - users[0].address.address
+  - users[0].address.city
+  - users[0].address.zip
+  - users[0].address.unit
+  - users[0].address.state
+  - users[0].address.country
+question: |
+  What is your address?
+subquestion: |
+  Use an address where it is safe for the court to contact you. 
+  
+  Note: If needed, you can [talk with an advocate](https://vtnetwork.org/) about how to get a safer mailing address. 
+fields:
+  - code: |
+      users[0].address_fields(default_state=AL_DEFAULT_STATE)
+  - I have a mailing address that is different from my street address: users_mailing_address_different
+    datatype: yesno
+  - Mailing address: users[0].mailing_address.address
+    address autocomplete: True
+    show if: users_mailing_address_different
+  - Unit: users[0].mailing_address.unit
+    required: False
+    show if: users_mailing_address_different
+  - City: users[0].mailing_address.city
+    show if: users_mailing_address_different
+  - State: users[0].mailing_address.state
+    code: |
+      states_list()
+    default: VT
+    show if: users_mailing_address_different
+  - Zip or postal code: users[0].mailing_address.zip
+    required: False
+    show if: users_mailing_address_different
+---
+id: you birthdate question
+question: |
+  When were you born?
+fields:
+  - Birthdate: users[0].birthdate
+    required: True
+    datatype: BirthDate
+---
 id: users birthdate
 question: |
   Your birthdate
@@ -139,25 +184,30 @@ fields:
   - "Year - last two digits": users1_birth_year
     maxlength: 2
 ---
-id: users address and phone number
+id: users phone numbers and email
 question: |
-  Your address and phone number
+  Your contact information
 fields:
-  - "Your mailing address": users1_address_mailing
-    maxlength: 42
   - "Your daytime phone number": users1_daytime_phone_number
     maxlength: 17
+    required: False
   - "Your evening phone number": users1_evening_phone_number
     maxlength: 17
+    required: False
+  - Your email address: users[0].email    
+    datatype: email
+    required: False
 ---
 id: users lawyer
 question: |
-  Your lawyer
+  Do you have a lawyer working with you on this case?
 fields:
   - "Your lawyer's name": users1_attorneys_name
     maxlength: 20
+    required: False
   - "Your lawyer's phone number": users1_attorneys_phone_number
     maxlength: 21
+    required: False
 ---
 id: users benefits or child support
 question: |
@@ -185,12 +235,34 @@ fields:
   - "Year - last 2 digits": other_parties1_birth_year
     maxlength: 2
 ---
-id: defendants mailing address
+id: ask defendant address
+continue button field: ask_defendant_address
 question: |
-  Defendant's mailing address
+  What is the defendant's address?
 fields:
-  - "Defendant's mailing address": other_parties1_address_mailing
-    maxlength: 44
+  - code: |
+      other_parties[0].address_fields(default_state=AL_DEFAULT_STATE)
+  - They have a mailing address that is different from their street address: other_parties_mailing_address_different
+    datatype: yesno
+  - Mailing address: other_parties[0].mailing_address.address
+    address autocomplete: True
+    show if: other_parties_mailing_address_different
+  - Unit: other_parties[0].mailing_address.unit
+    required: False
+    show if: other_parties_mailing_address_different
+  - City: other_parties[0].mailing_address.city
+    show if: other_parties_mailing_address_different
+  - State: other_parties[0].mailing_address.state
+    code: |
+      states_list()
+    default: VT
+    show if: other_parties_mailing_address_different
+  - Zip or postal code: other_parties[0].mailing_address.zip
+    required: False
+    show if: other_parties_mailing_address_different
+---
+
+
 ---
 id: defendants phone numbers
 question: |
@@ -329,14 +401,11 @@ review:
     button: |
       **Year**:
       ${ other_parties1_birth_year }
-  - Edit: users1_address_mailing
-    button: |
-      **Your mailing address**:
-      ${ users1_address_mailing }
+
   - Edit: other_parties1_address_mailing
     button: |
       **Defendant's mailing address**:
-      ${ other_parties1_address_mailing }
+      ${ other_parties[0].mailing_address.address }
   - Edit: users1_daytime_phone_number
     button: |
       **Your daytime phone number**:
@@ -521,8 +590,8 @@ attachment:
       - "other_parties1_birth_year": ${ other_parties1_birth_year }
       - "users1_address_address": ${ users[0].address.address }
       - "other_parties1_address_address": ${ other_parties[0].address.address }
-      - "users1_address_mailing": ${ users1_address_mailing }
-      - "other_parties1_address_mailing": ${ other_parties1_address_mailing }
+      - "users1_address_mailing": ${ users[0].mailing_address.address }
+      - "other_parties1_address_mailing": ${ other_parties[0].mailing_address.address }
       - "other_parties1_address_zip": ${ other_parties[0].address.zip }
       - "users1_address_city": ${ users[0].address.city }
       - "other_parties1_address_city": ${ other_parties[0].address.city }
