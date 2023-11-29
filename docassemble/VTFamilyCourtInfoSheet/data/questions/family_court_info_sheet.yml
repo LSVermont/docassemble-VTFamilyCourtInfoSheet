@@ -1,4 +1,4 @@
-#interview works. Need to get all data into PDF (birthdates). Need to do review screen. Need to incorporate sharedYMLfile.
+#Interview works. Need to get all data into PDF (birthdates, court county). Need to do the review screen. Need to incorporate sharedYMLfile.
 ---
 include:
   - docassemble.AssemblyLine:assembly_line.yml
@@ -21,10 +21,18 @@ metadata:
     https://vtlawhelp.org/roadmap/divorce/step-3
   help_page_title: >-
     Divorce Roadmap
-  allowed_courts: []
+  allowed courts: 
+    - "Family Court"
   typical_role: "plaintiff"
   al_weaver_version: "1.10.2"
   generated_on: "2023-11-11"
+---
+objects:
+  - all_courts: ALCourtLoader.using(file_name='courts_list.xlsx')
+---
+code: |
+  trial_court = all_courts.as_court('trial_court', trial_court_index)
+  trial_court.geolocate()  
 ---
 code: |
   # This controls the default country and list of states in address field questions
@@ -61,9 +69,9 @@ code: |
   nav.set_section("review_b_info_sheet_family_court")
   user_role = "plaintiff"
   user_ask_role = "plaintiff"
-  trial_court.address.address
   docket_number
-  OCS_filing_form_yes
+  trial_court.address.address
+  OCS_filing_form
   set_progress(12)
   users.gather()
   set_parts(subtitle=str(users))
@@ -116,19 +124,33 @@ question: |
 subquestion: |
   This interview will help you fill in the Vermont Family Court Information Sheet.
   
+  This form is required for many family court cases. It is required when you file for a divorce.  
 
   Before you get started, you will need:
   
   - your contact information
   
-  - the other party's contact information
+  - the other party's birth date and contact information (including mailing address, phone and email)
   
-  - lawyer name and phone number for both parties, if you have lawyers
+  - location of other family, juvenile or probate court cases that are in progress, and
   
-  - other family, juvenile or probate court proceedings that are in process
+  - if there are lawyers involved: their name(s) and phone number(s).
   
   
   Most people take about 20 minutes to finish this interview.
+---
+id: choose a court
+question: |
+  Choose a F(amily Court
+fields:
+  - note: |
+      Choose the county where you will file this form. 
+      
+      If the court case has already been started, select the county that you filed your forms in.
+      
+      Not sure what county? [Check this list of cities and towns to find the county.](https://en.m.wikipedia.org/wiki/List_of_municipalities_in_Vermont#Cities)
+  - County: trial_court_index
+    code: all_courts._load_courts()['address_county'].items()
 ---
 id: Gather users street address
 sets:
@@ -384,7 +406,7 @@ id: office of child support
 question: |
   Office of Child Support
 fields:
-  - "Check this box if you are an employee of the Office of Child Support who is filling out this form": OCS_filing_form_yes
+  - "Check this box if you are an employee of the Office of Child Support who is filling out this form": OCS_filing_form
     datatype: yesno
   - note: |
       If you are not an OCS employee, continue to the next question.
@@ -574,10 +596,10 @@ review:
     button: |
       **Your lawyer's phone number**:
       ${ users1_attorneys_phone_number }
-  - Edit: OCS_filing_form_yes
+  - Edit: OCS_filing_form
     button: |
       **Is Vermont Office of Child Support filing this form?**:
-      ${ word(yesno(OCS_filing_form_yes)) }
+      ${ word(yesno(OCS_filing_form)) }
   - Edit: users1_gets_public_assistance
     button: |
       **Do you get public assistance?**:
@@ -744,7 +766,7 @@ attachment:
       - "other_parties1_attorneys_phone_number": ${ other_parties1_attorneys_phone_number }
       - "users1_attorneys_name": ${ users1_attorneys_name }
       - "users1_attorneys_phone_number": ${ users1_attorneys_phone_number }
-      - "OCS_filing_form_yes": ${ OCS_filing_form_yes }
+      - "OCS_filing_form_yes": ${ OCS_filing_form }
       - "users1_gets_public_assistance": ${ users1_gets_public_assistance }
       - "users1_gets_child_support": ${ users1_gets_child_support }
       - "other_parties1_gets_child_support": ${ other_parties1_gets_child_support }
