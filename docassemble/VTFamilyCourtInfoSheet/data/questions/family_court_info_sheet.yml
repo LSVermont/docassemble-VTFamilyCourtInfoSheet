@@ -1,4 +1,4 @@
-#start up again at defendant's address. I added other_parties and children as objects
+#interview works. Need to get all data into PDF (birthdates). Need to do review screen. Need to incorporate sharedYMLfile.
 ---
 include:
   - docassemble.AssemblyLine:assembly_line.yml
@@ -79,11 +79,10 @@ code: |
   other_parties1_mailing_address_different
   set_progress(48)
   other_parties1_daytime_phone_number
-  other_parties[0].email
   set_progress(60)
-  other_parties1_birth_month
+  other_parties[0].birth_month
   other_parties1_gets_child_support
-  other_parties1_attorneys_name
+  other_parties1_has_attorney
   set_progress(72)
   other_family_juv_probate_proceedings
   interview_order_b_info_sheet_family_court = True
@@ -229,6 +228,10 @@ fields:
     
   - "I get child support": users1_gets_child_support
     datatype: yesno
+    
+  - note: |
+      The Office of Child Support can help people with child support questions and problems. Call them at 1-800-786-3214 or TTY access number 1-800-253-0191.
+
 ---
 id: Gather defendant name
 sets:
@@ -251,25 +254,48 @@ fields:
     required: False
 
 ---
-id: defendants birthdate
+id: birthdate question
 question: |
-  Defendant's birthdate
+  When was ${ other_parties[0].name } born?
 fields:
-  - "Month of defendant's birth": other_parties1_birth_month
-    maxlength: 2
-  - "Day": other_parties1_birth_day
-    maxlength: 2
-  - "Year - last 2 digits": other_parties1_birth_year
-    maxlength: 2
+  - Month: other_parties[0].birth_month
+    choices:
+      - January: 1
+      - February: 2
+      - March: 3
+      - April: 4
+      - May: 5
+      - June: 6
+      - July: 7
+      - August: 8
+      - September: 9
+      - October: 10
+      - November: 11
+      - December: 12
+    required: False
+  - Day: other_parties[0].birth_day
+    datatype: integer
+    code: |
+      range(1,31+1)
+    required: False
+  - Year: other_parties[0].birth_year
+    code: |
+      list(range(today().year, today().year - 100 - 1, -1))
+    required: False
 ---
-id: ask defendant address
-continue button field: ask_defendant_address
+sets:
+  - other_parties[0].address.address
+  - other_parties[0].address.city
+  - other_parties[0].address.zip
+  - other_parties[0].address.unit
+  - other_parties[0].address.state
+  - other_parties[0].address.country
 question: |
-  What is the defendant's address?
+  What is the other party's address (the defendant)?
 fields:
   - code: |
       other_parties[0].address_fields(default_state=AL_DEFAULT_STATE)
-  - They have a mailing address that is different from their street address: other_parties1_mailing_address_different
+  - The other party has a mailing address that is different from their street address: other_parties1_mailing_address_different
     datatype: yesno
   - Mailing address: other_parties[0].mailing_address.address
     address autocomplete: True
@@ -287,33 +313,71 @@ fields:
   - Zip or postal code: other_parties[0].mailing_address.zip
     required: False
     show if: other_parties1_mailing_address_different
+
+---
+#id: ask defendant address
+#continue button field: ask_defendant_address
+#question: |
+#  What is the defendant's address?
+#fields:
+#  - code: |
+#      other_parties[0].address_fields(default_state=AL_DEFAULT_STATE)
+#  - They have a mailing address that is different from their street address: other_parties1_mailing_address_different
+#    datatype: yesno
+#  - Mailing address: other_parties[0].mailing_address.address
+#    address autocomplete: True
+#    show if: other_parties1_mailing_address_different
+#  - Unit: other_parties[0].mailing_address.unit
+#    required: False
+#    show if: other_parties1_mailing_address_different
+#  - City: other_parties[0].mailing_address.city
+#    show if: other_parties1_mailing_address_different
+#  - State: other_parties[0].mailing_address.state
+#    code: |
+#      states_list()
+#    default: VT
+#    show if: other_parties1_mailing_address_different
+#  - Zip or postal code: other_parties[0].mailing_address.zip
+#    required: False
+#    show if: other_parties1_mailing_address_different
 ---
 
 
 ---
 id: defendants phone numbers
 question: |
-  Defendant's phone numbers
+  Other party's contact information (the defendant)
 fields:
   - "Defendant's daytime phone number": other_parties1_daytime_phone_number
     maxlength: 17
+    required: False
   - "Defendant's evening phone number": other_parties1_evening_phone_number
     maxlength: 17
+    required: False
+  - Your email address: other_parties[0].email    
+    datatype: email
+    required: False
 ---
 id: defendants lawyer
 question: |
-  Defendant's lawyer
+  The other party's lawyer
 fields:
-  - "Defendant's lawyer's name": other_parties1_attorneys_name
+  - "Does the defendant have a lawyer working with them on this case?": other_parties1_has_attorney
+    datatype: yesnoradio
+  - "Their lawyer's name": other_parties1_attorneys_name
     maxlength: 20
-  - "Defendant's lawyer's phone number": other_parties1_attorneys_phone_number
-    maxlength: 24
+    required: False
+    show if: other_parties1_has_attorney
+  - "Their lawyer's phone number": other_parties1_attorneys_phone_number
+    maxlength: 21
+    required: False
+    show if: other_parties1_has_attorney
 ---
 id: defendant gets child support
 question: |
-  Defendant gets child support?
+  Other party gets child support?
 fields:
-  - "Does defendant get child support?": other_parties1_gets_child_support
+  - "Does the defendant get child support?": other_parties1_gets_child_support
     datatype: yesno
 ---
 id: office of child support
@@ -328,27 +392,70 @@ fields:
 id: other court proceedings
 question: |
   Other court proceedings
+subquestion: |
+  Are there other Family court, Probate court or Juvenile court cases involving you, the other party and/or your children?
 fields:
-  - "Are there other family court, probate court or juvenile court cases involving yourself, the other party and/or your children?": other_family_juv_probate_proceedings
+  - "Other court cases?": other_family_juv_probate_proceedings
     datatype: yesnoradio
-  - "How many?": number_of_proceedings
-    datatype: integer
-    maxlength: 2
-    show if: other_family_juv_probate_proceedings
   - "In what county?": trial_court_county_other_filing1
-    maxlength: 30
-  - "In what court division (family court, probate court or juvenile court)?": trial_court_division_other_filing1
-    maxlength: 30
+    choices:
+      - Addison
+      - Bennington
+      - Caledonia
+      - Chittenden
+      - Essex
+      - Franklin
+      - Grand Isle
+      - Lamoille
+      - Orange
+      - Orleans
+      - Rutland
+      - Washington
+      - Windham
+      - Windsor
+    show if: other_family_juv_probate_proceedings
+  - "In what court division?": trial_court_division_other_filing1
+    choices:
+      - Family court
+      - Probate court
+      - Juvenile court
+    show if: other_family_juv_probate_proceedings
   - "In what state?": trial_court_state_other_filing1
     code: |
       states_list()
+    show if: other_family_juv_probate_proceedings
+    default: VT
+  - "I have another to list": other_family_juv_probate_proceedings2
+    datatype: yesno
+    show if: other_family_juv_probate_proceedings
   - "In what county?": trial_court_county_other_filing2
-    maxlength: 30
-  - "In what court division (family court, probate court or juvenile court)?": trial_court_division_other_filing2
-    maxlength: 30
+    choices:
+      - Addison
+      - Bennington
+      - Caledonia
+      - Chittenden
+      - Essex
+      - Franklin
+      - Grand Isle
+      - Lamoille
+      - Orange
+      - Orleans
+      - Rutland
+      - Washington
+      - Windham
+      - Windsor
+    show if: other_family_juv_probate_proceedings2
+  - "In what court division?": trial_court_division_other_filing2
+    choices:
+      - Family court
+      - Probate court
+      - Juvenile court
+    show if: other_family_juv_probate_proceedings2
   - "In what state?": trial_court_state_other_filing2
     code: |
       states_list()
+    show if: other_family_juv_probate_proceedings2
+    default: VT
 ---
 id: preview family_court_info_sheet
 question: |
