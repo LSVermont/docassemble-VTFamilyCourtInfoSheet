@@ -73,6 +73,7 @@ code: |
   trial_court.address.address
   OCS_filing_form
   set_progress(12)
+  user_is_plaintiff
   users.gather()
   set_parts(subtitle=str(users))
   users1_mailing_address_different
@@ -141,7 +142,7 @@ subquestion: |
 ---
 id: choose a court
 question: |
-  Choose a F(amily Court
+  Choose a Family Court
 fields:
   - note: |
       Choose the county where you will file this form. 
@@ -151,6 +152,32 @@ fields:
       Not sure what county? [Check this list of cities and towns to find the county.](https://en.m.wikipedia.org/wiki/List_of_municipalities_in_Vermont#Cities)
   - County: trial_court_index
     code: all_courts._load_courts()['address_county'].items()
+---
+id: user is plaintiff
+question: |
+  Gathering information
+subquestion: | 
+  We will first collect information about the person who is listed as the **plaintiff** in the family court case. We will call that person "you."
+  
+  If you are filling out this form and you are listed as the **defendant** in the court case, please enter the plaintiff's information first.
+  
+  Look at your other court papers to see if you are listed as the plaintiff or the defendant for this court case.
+  
+continue button field: user_is_plaintiff    
+---
+id: your name
+sets:
+    - users[0].name.first
+    - users[0].name.last
+    - users[0].name.middle
+    - users[0].name.suffix
+question:  |
+  What is your name? 
+subquestion:  |
+  Enter the name of the plaintiff.
+fields:
+  - code: |
+      users[0].name_fields()
 ---
 id: Gather users street address
 sets:
@@ -260,7 +287,9 @@ sets:
   - other_parties[0].name.first
   - other_parties[0].name.last
 question: |
-  Name of the other party (the "defendant")
+  Name of the other party
+subquestion: |
+  Enter the name of the “defendant".
 fields:
   - First Name: other_parties[0].name.first
   - Middle Name: other_parties[0].name.middle
