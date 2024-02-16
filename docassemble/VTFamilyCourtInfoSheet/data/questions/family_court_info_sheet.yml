@@ -3,6 +3,8 @@
 include:
   - docassemble.AssemblyLine:assembly_line.yml
   - docassemble.ALAnyState:any_state.yml
+  - docassemble.ALToolbox:phone-number-validation.yml
+  - docassemble.VTSharedYMLFile:VTSharedYMLFile.yml
 ---
 metadata:
   title: >-
@@ -23,7 +25,7 @@ metadata:
     Divorce Roadmap
   allowed courts: 
     - "Family Court"
-  typical_role: "plaintiff"
+  #typical_role: "plaintiff"
   al_weaver_version: "1.10.2"
   generated_on: "2023-11-11"
 ---
@@ -67,18 +69,19 @@ code: |
   # Set the allowed courts for this interview
   allowed_courts = []
   nav.set_section("review_b_info_sheet_family_court")
-  user_role = "plaintiff"
-  user_ask_role = "plaintiff"
   docket_number
   trial_court.address.address
   OCS_filing_form
+  #users_role
   set_progress(12)
-  user_is_plaintiff
-  users.gather()
   set_parts(subtitle=str(users))
+  #user_role = "plaintiff"
+  #user_ask_role
+  #user_is_plaintiff
+  users.gather()
   users1_mailing_address_different
   set_progress(24)
-  users1_daytime_phone_number
+  users[0].email
   users[0].birthdate
   users1_gets_public_assistance
   set_progress(36)
@@ -87,9 +90,9 @@ code: |
   other_parties[0].name.first
   other_parties1_mailing_address_different
   set_progress(48)
-  other_parties1_daytime_phone_number
+  other_parties[0].daytime_phone_number
   set_progress(60)
-  other_parties[0].birth_month
+  other_parties[0].birthdate
   other_parties1_gets_child_support
   other_parties1_has_attorney
   set_progress(72)
@@ -103,9 +106,8 @@ comment: |
 mandatory: True
 code: |
   al_intro_screen
-  b_info_sheet_family_court_intro
   interview_order_b_info_sheet_family_court
-  signature_date
+  #signature_date
   # Store anonymous data for analytics / statistics
   store_variables_snapshot(
       persistent=True,
@@ -116,29 +118,40 @@ code: |
   )
   b_info_sheet_family_court_download
 ---
-comment: |
-  This question is used to introduce your interview. Please customize
-id: Family_court_information_sheet
-continue button field: b_info_sheet_family_court_intro
+id: basic questions intro screen
+decoration: form-lineal
 question: |
-  Family court information sheet
-subquestion: |
-  This interview will help you fill in the Vermont Family Court Information Sheet.
+  **${interview_short_title}**
+subquestion: |  
+
+  <p>${ intro_vtcourtforms_3_steps }</p>
   
-  This form is required for many family court cases. It is required when you file for a divorce.  
+  <i class="fas fa-file-text fa-2x"></i>This interview will help you fill in the Vermont Family Court Information Sheet. This form is required for many family court cases. It is required when you file for a divorce.  
 
   Before you get started, you will need:
   
-  - your contact information
-  
+  - to know if you are the plaintiff or the defendant in this court case (check your other court forms)
   - the other party's birth date and contact information (including mailing address, phone and email)
-  
   - location of other family, juvenile or probate court cases that are in progress, and
-  
   - if there are lawyers involved: their name(s) and phone number(s).
   
+  <i class="fas fa-clock fa-2x"></i> It may take you 20 minutes to complete this interview.
   
-  Most people take about 20 minutes to finish this interview.
+  <i class="fas fa-circle-info fa-2x"></i> It is free to use this program. This site is not a lawyer. Visit our [VTLawHelp.org website](https://vtlawhelp.org/roadmap/divorce/step-1) for more information about divorce, separation, or civil union dissolution.
+
+  <p>${ intro_vtcourtforms_created_by }</p>
+
+fields:
+  - To continue, please accept our [terms of use](https://vtlawhelp.org/vlh-privacy).: acknowledged_information_use
+    datatype: checkboxes
+    none of the above: False    
+    minlength: 1
+    choices:
+      - I accept the terms of use.
+    validation messages:
+      minlength: |
+        You cannot continue unless you agree to the terms of use.        
+continue button field: al_intro_screen
 ---
 id: choose a court
 question: |
@@ -147,39 +160,55 @@ fields:
   - note: |
       Choose the county where you will file this form. 
       
-      If the court case has already been started, select the county that you filed your forms in.
+      <h2 class="h4">What county should I choose?</h2>
+
+      * If you already have a court case in progress, select the county that is listed on your court papers.
+      * If you are starting a new case, or if you are looking to change counties, file in the county where you or the other party live. 
+      * If you have children, you would likely file in the county where your children live most of the time. 
+      * If you do not have children, you could file in the county your marital home resides in.
+      * If you aren’t sure where to file, check for advice on [VTLawHelp.org](https://vtlawhelp.org/family), call your [local courthouse](https://www.vermontjudiciary.org/court-locations), contact the [Vermont Judiciary Access Resource Center](https://www.vermontjudiciary.org/self-help/ARC), or contact [Legal Services Vermont](https://vtlawhelp.org/how-we-can-help).
       
       Not sure what county? [Check this list of cities and towns to find the county.](https://en.m.wikipedia.org/wiki/List_of_municipalities_in_Vermont#Cities)
   - County: trial_court_index
     code: all_courts._load_courts()['address_county'].items()
 ---
-id: user is plaintiff
-question: |
-  Gathering information
-subquestion: | 
-  We will first collect information about the person who is listed as the **plaintiff** in the family court case. We will call that person "you."
-  
-  If you are filling out this form and you are listed as the **defendant** in the court case, please enter the plaintiff's information first.
-  
-  Look at your other court papers to see if you are listed as the plaintiff or the defendant for this court case.
-  
-continue button field: user_is_plaintiff    
+#id: user ask role
+#question: |
+#  What is your role in this case?
+#subquestion: | 
+#  Are you listed as the plaintiff or the defendant? Check your related court forms to find out.
+#fields:
+#  - I am the plaintiff: users_role_is_plaintiff
+#    datatype: yesno
+#  - I am the defendant: users_role_is_defendant
+#    datatype: yesno
+#continue button field: users_role
 ---
-id: your name
+#id: user is plaintiff
+#question: |
+#  Gathering information
+#subquestion: | 
+#  We will first collect information about the person who is listed as the **plaintiff** in the family court case. We will call that person "you."
+#  
+#  If you are filling out this form and you are listed as the **defendant** in the court case, please enter the plaintiff's information first.
+#  
+#  Look at your other court papers to see if you are listed as the plaintiff or the defendant for this court case.
+#  
+#continue button field: user_is_plaintiff    
+---
+id: plaintiff name
 sets:
     - users[0].name.first
     - users[0].name.last
     - users[0].name.middle
     - users[0].name.suffix
 question:  |
-  What is your name? 
-subquestion:  |
-  Enter the name of the plaintiff.
+  What is the name of the plaintiff in this case? 
 fields:
   - code: |
       users[0].name_fields()
 ---
-id: Gather users street address
+id: Gather plaintiff street address
 sets:
   - users[0].address.address
   - users[0].address.city
@@ -188,15 +217,13 @@ sets:
   - users[0].address.state
   - users[0].address.country
 question: |
-  What is your address?
-subquestion: |
-  Use an address where it is safe for the court to contact you. 
-  
-  Note: If needed, you can [talk with an advocate](https://vtnetwork.org/) about how to get a safer mailing address. 
+  What is ${ users[0].name }'s address?
+subquestion: | 
+  Note: If needed, you can [talk with an advocate](https://vtnetwork.org/) about how to get a safe mailing address. 
 fields:
   - code: |
       users[0].address_fields(default_state=AL_DEFAULT_STATE)
-  - I have a mailing address that is different from my street address: users1_mailing_address_different
+  - ${ users[0].name } has a mailing address that is different from their street address: users1_mailing_address_different
     datatype: yesno
   - Mailing address: users[0].mailing_address.address
     address autocomplete: True
@@ -215,67 +242,74 @@ fields:
     required: False
     show if: users1_mailing_address_different
 ---
-id: you birthdate question
+id: user birthdate question
 question: |
-  When were you born?
+  When was ${ users[0].name } born?
 fields:
   - Birthdate: users[0].birthdate
     required: True
     datatype: BirthDate
 ---
-id: users birthdate
-question: |
-  Your birthdate
-fields:
-  - "Month of your birth": users1_birth_month
-    maxlength: 2
-  - "Day": users1_birth_day
-    maxlength: 2
-  - "Year - last two digits": users1_birth_year
-    maxlength: 2
+#id: users birthdate
+#question: |
+#  When is ${ users[0].name }'s birthdate?
+#fields:
+#  - "Month of birth": users1_birth_month
+#    maxlength: 2
+#  - "Day": users1_birth_day
+#    maxlength: 2
+#  - "Year - last two digits": users1_birth_year
+#    maxlength: 2
 ---
-id: users phone numbers and email
+id: Gather users contact information
 question: |
-  Your contact information
-fields:
-  - "Your daytime phone number": users1_daytime_phone_number
-    maxlength: 17
+  What is ${ users[0].name }'s contact information?
+subquestion: |
+  Include at least **one way** to reach them. 
+fields:  
+  - Daytime phone number: users[0].daytime_phone_number
+    datatype: al_international_phone
     required: False
-  - "Your evening phone number": users1_evening_phone_number
-    maxlength: 17
+  - Evening phone number: users[0].evening_phone_number
+    datatype: al_international_phone
     required: False
-  - Your email address: users[0].email    
+  - Email: users[0].email    
     datatype: email
-    required: False
+    required: False      
+validation code: |
+  if (not showifdef('users[0].daytime_phone_number') and \
+      (not showifdef('users[0].email')) and \
+      (not showifdef('users[0].evening_phone_number'))):
+    validation_error(word("You need to provide at least one contact method."))    
 ---
 id: users lawyer
 question: |
   Lawyer
 fields:
-  - "Do you have a lawyer working with you on this case?": users1_has_attorney
+  - "Does ${ users[0].name } have a lawyer for this case?": users1_has_attorney
     datatype: yesnoradio
-  - "Your lawyer's name": users1_attorneys_name
+  - "Lawyer's name": users1_attorneys_name
     maxlength: 20
     required: False
     show if: users1_has_attorney
-  - "Your lawyer's phone number": users1_attorneys_phone_number
+  - "Lawyer's phone number": users1_attorneys_phone_number
     maxlength: 21
     required: False
     show if: users1_has_attorney
 ---
 id: users benefits or child support
 question: |
-  Do you get any benefits or child support?
+  Does ${ users[0].name } get any benefits or child support?
 fields:
-  - note: |
-      Check all that apply.
-      
+  - note: |      
       Public assistance can include help from Vermont's Department of Economic Services such as Reach-Up, Dr. Dynasaur, Medicaid, or Post Secondary Education Stipend (PSE).
+      
+      Check all that apply.
 
-  - "I get public assistance": users1_gets_public_assistance
+  - "Gets public assistance": users1_gets_public_assistance
     datatype: yesno
     
-  - "I get child support": users1_gets_child_support
+  - "Gets child support": users1_gets_child_support
     datatype: yesno
     
   - note: |
@@ -287,14 +321,14 @@ sets:
   - other_parties[0].name.first
   - other_parties[0].name.last
 question: |
-  Name of the other party
+  Name of the defendant
 subquestion: |
-  Enter the name of the “defendant".
+  Enter the name of the person listed as the defendant.
 fields:
-  - First Name: other_parties[0].name.first
-  - Middle Name: other_parties[0].name.middle
+  - First name: other_parties[0].name.first
+  - Middle name: other_parties[0].name.middle
     required: False
-  - Last Name: other_parties[0].name.last
+  - Last name: other_parties[0].name.last
   - Suffix: other_parties[0].name.suffix
     choices: 
       - Jr
@@ -342,11 +376,11 @@ sets:
   - other_parties[0].address.state
   - other_parties[0].address.country
 question: |
-  What is the other party's address (the defendant)?
+  What is ${ other_parties[0].name }'s address?
 fields:
   - code: |
       other_parties[0].address_fields(default_state=AL_DEFAULT_STATE)
-  - The other party has a mailing address that is different from their street address: other_parties1_mailing_address_different
+  - ${ other_parties[0].name } has a mailing address that is different from their street address: other_parties1_mailing_address_different
     datatype: yesno
   - Mailing address: other_parties[0].mailing_address.address
     address autocomplete: True
@@ -392,44 +426,48 @@ fields:
 #    required: False
 #    show if: other_parties1_mailing_address_different
 ---
-
-
----
 id: defendants phone numbers
 question: |
-  Other party's contact information (the defendant)
-fields:
-  - "Defendant's daytime phone number": other_parties1_daytime_phone_number
-    maxlength: 17
+  ${ other_parties[0].name }'s contact information
+subquestion: |
+  Include at least **one way** to reach them. 
+fields:  
+  - Daytime phone number: other_parties[0].daytime_phone_number
+    datatype: al_international_phone
     required: False
-  - "Defendant's evening phone number": other_parties1_evening_phone_number
-    maxlength: 17
+  - Evening phone number: other_parties[0].evening_phone_number
+    datatype: al_international_phone
     required: False
-  - Your email address: other_parties[0].email    
+  - Email: other_parties[0].email    
     datatype: email
-    required: False
+    required: False      
+validation code: |
+  if (not showifdef('other_parties[0].daytime_phone_number') and \
+      (not showifdef('other_parties[0].email')) and \
+      (not showifdef('other_parties[0].evening_phone_number'))):
+    validation_error(word("You need to provide at least one contact method."))     
 ---
 id: defendants lawyer
 question: |
-  The other party's lawyer
+  ${ other_parties[0].name }'s lawyer
 fields:
-  - "Does the defendant have a lawyer working with them on this case?": other_parties1_has_attorney
+  - "Does ${ other_parties[0].name } have a lawyer for this case?": other_parties1_has_attorney
     datatype: yesnoradio
-  - "Their lawyer's name": other_parties1_attorneys_name
+  - "Lawyer's name": other_parties1_attorneys_name
     maxlength: 20
     required: False
     show if: other_parties1_has_attorney
-  - "Their lawyer's phone number": other_parties1_attorneys_phone_number
+  - "Lawyer's phone number": other_parties1_attorneys_phone_number
     maxlength: 21
     required: False
     show if: other_parties1_has_attorney
 ---
 id: defendant gets child support
 question: |
-  Other party gets child support?
+  Child support
 fields:
-  - "Does the defendant get child support?": other_parties1_gets_child_support
-    datatype: yesno
+  - "Does Does ${ other_parties[0].name } get child support?": other_parties1_gets_child_support
+    datatype: yesnoradio
 ---
 id: office of child support
 question: |
@@ -524,8 +562,8 @@ subquestion: |
   Remember to come back to this window to continue and sign your form.
 continue button field: b_info_sheet_family_court_preview_question    
 ---
-code: |
-  signature_fields = []
+#code: |
+  #signature_fields = []
 ---
 code: |
   # This is a placeholder for the addresses that will be searched
