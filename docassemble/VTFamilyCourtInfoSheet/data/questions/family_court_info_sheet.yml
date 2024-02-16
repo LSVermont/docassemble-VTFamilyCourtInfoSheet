@@ -1,4 +1,4 @@
-#Interview works. Need to get all data into PDF (birthdates, court county). Need to do the review screen. Need to incorporate sharedYMLfile.
+#Need to do the review screen. Need to incorporate sharedYMLfile templates on download screen.
 ---
 include:
   - docassemble.AssemblyLine:assembly_line.yml
@@ -203,7 +203,9 @@ sets:
     - users[0].name.middle
     - users[0].name.suffix
 question:  |
-  What is the name of the plaintiff in this case? 
+  What is the name of the plaintiff in this case?
+subquestion: | 
+  The plaintiff is usually the person who started the case. Look at your other court documents to see who is listed as the plaintiff.
 fields:
   - code: |
       users[0].name_fields()
@@ -339,34 +341,34 @@ fields:
     required: False
 
 ---
-id: birthdate question
-question: |
-  When was ${ other_parties[0].name } born?
-fields:
-  - Month: other_parties[0].birth_month
-    choices:
-      - January: 1
-      - February: 2
-      - March: 3
-      - April: 4
-      - May: 5
-      - June: 6
-      - July: 7
-      - August: 8
-      - September: 9
-      - October: 10
-      - November: 11
-      - December: 12
-    required: False
-  - Day: other_parties[0].birth_day
-    datatype: integer
-    code: |
-      range(1,31+1)
-    required: False
-  - Year: other_parties[0].birth_year
-    code: |
-      list(range(today().year, today().year - 100 - 1, -1))
-    required: False
+#id: birthdate question
+#question: |
+#  When was ${ other_parties[0].name } born?
+#fields:
+#  - Month: other_parties[0].birth_month
+#    choices:
+#      - January: 1
+#      - February: 2
+#      - March: 3
+#      - April: 4
+#      - May: 5
+#      - June: 6
+#      - July: 7
+#      - August: 8
+#      - September: 9
+#      - October: 10
+#      - November: 11
+#      - December: 12
+#    required: False
+#  - Day: other_parties[0].birth_day
+#    datatype: integer
+#    code: |
+#      range(1,31+1)
+#    required: False
+#  - Year: other_parties[0].birth_year
+#    code: |
+#      list(range(today().year, today().year - 100 - 1, -1))
+#    required: False
 ---
 sets:
   - other_parties[0].address.address
@@ -502,7 +504,13 @@ fields:
       - Washington
       - Windham
       - Windsor
+      - Other
     show if: other_family_juv_probate_proceedings
+  - "What county?": trial_court_other_county_other_filing1
+    maxlength: 22
+    show if:
+      variable: trial_court_county_other_filing1
+      is: Other
   - "In what court division?": trial_court_division_other_filing1
     choices:
       - Family court
@@ -533,7 +541,13 @@ fields:
       - Washington
       - Windham
       - Windsor
+      - Other
     show if: other_family_juv_probate_proceedings2
+  - "What county?": trial_court_other_county_other_filing2
+    maxlength: 22
+    show if:
+      variable: trial_court_county_other_filing2
+      is: Other
   - "In what court division?": trial_court_division_other_filing2
     choices:
       - Family court
@@ -721,12 +735,15 @@ rows: users
 columns:
   - Name: |
       row_item.name.full() if defined("row_item.name.first") else ""
+  - Birthdate: |
+      row_item.birthdate if defined("row_item.birthdate") else ""
   - Address: |
       row_item.address.block() if defined("row_item.address.state") else ""
   - Email: |
       row_item.email if defined("row_item.email") else ""
 edit:
   - name.first
+  - birthdate
   - address.state
   - email
 confirm: True
@@ -745,12 +762,15 @@ rows: other_parties
 columns:
   - Name: |
       row_item.name.full() if defined("row_item.name.first") else ""
+  - Birthdate: |
+      row_item.birthdate if defined("row_item.birthdate") else ""
   - Address: |
       row_item.address.block() if defined("row_item.address.state") else ""
   - Email: |
       row_item.email if defined("row_item.email") else ""
 edit:
   - name.first
+  - birthdate
   - address.state
   - email
 confirm: True
@@ -778,12 +798,12 @@ progress: 100
 # ALDocument objects specify the metadata for each template
 objects:
   - b_info_sheet_family_court_Post_interview_instructions: ALDocument.using(title="Instructions", filename="b_info_sheet_family_court_next_steps.docx", enabled=True, has_addendum=False)
-  - b_info_sheet_family_court_attachment: ALDocument.using(title="Family court information sheet", filename="b_info_sheet_family_court", enabled=True, has_addendum=False, )
+  - b_info_sheet_family_court_attachment: ALDocument.using(title="Family court information sheet", filename="B_info_sheet_family_court", enabled=True, has_addendum=False, )
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[b_info_sheet_family_court_Post_interview_instructions, b_info_sheet_family_court_attachment], filename="b_info_sheet_family_court", title="All forms to download for your records", enabled=True)
-  - al_court_bundle: ALDocumentBundle.using(elements=[b_info_sheet_family_court_attachment],  filename="b_info_sheet_family_court", title="All forms to deliver to court", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[b_info_sheet_family_court_Post_interview_instructions, b_info_sheet_family_court_attachment], filename="B_info_sheet_family_court", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[b_info_sheet_family_court_attachment],  filename="B_info_sheet_family_court", title="All forms to deliver to court", enabled=True)
 ---
 # Each attachment defines a key in an ALDocument. We use `i` as the placeholder here so the same template is 
 # used for "preview" and "final" keys, and logic in the template checks the value of 
@@ -798,18 +818,20 @@ attachment:
 ---
 attachment:
   name: b info sheet family court
-  filename: b_info_sheet_family_court
+  filename: B_info_sheet_family_court
   variable name: b_info_sheet_family_court_attachment[i]
   skip undefined: True
-  pdf template file: b_info_sheet_family_court.pdf
+  pdf template file: B_info_sheet_family_court.pdf
   fields:
       - "docket_number": ${ docket_number }
       - "trial_court_county": ${ trial_court.address.county }
       - "users1_name": ${ users[0] }
       - "other_parties1_name": ${ other_parties[0] }
+      - "users1_birthdate": ${ users[0].birthdate.format() }
       - "users1_birth_month": ${ users1_birth_month }
       - "users1_birth_day": ${ users1_birth_day }
       - "users1_birth_year": ${ users1_birth_year }
+      - "other_parties1_birthdate": ${ other_parties[0].birthdate }
       - "other_parties1_birth_month": ${ other_parties1_birth_month }
       - "other_parties1_birth_day": ${ other_parties1_birth_day }
       - "other_parties1_birth_year": ${ other_parties1_birth_year }
