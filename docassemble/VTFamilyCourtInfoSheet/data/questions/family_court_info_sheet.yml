@@ -203,7 +203,9 @@ sets:
     - users[0].name.middle
     - users[0].name.suffix
 question:  |
-  What is the name of the plaintiff in this case? 
+  What is the name of the plaintiff in this case?
+subquestion: | 
+  The plaintiff is usually the person who started the case. Look at your other court documents to see who is listed as the plaintiff.
 fields:
   - code: |
       users[0].name_fields()
@@ -502,7 +504,13 @@ fields:
       - Washington
       - Windham
       - Windsor
+      - Other
     show if: other_family_juv_probate_proceedings
+  - "What county?": trial_court_other_county_other_filing1
+    maxlength: 22
+    show if:
+      variable: trial_court_county_other_filing1
+      is: Other
   - "In what court division?": trial_court_division_other_filing1
     choices:
       - Family court
@@ -533,7 +541,13 @@ fields:
       - Washington
       - Windham
       - Windsor
+      - Other
     show if: other_family_juv_probate_proceedings2
+  - "What county?": trial_court_other_county_other_filing2
+    maxlength: 22
+    show if:
+      variable: trial_court_county_other_filing2
+      is: Other
   - "In what court division?": trial_court_division_other_filing2
     choices:
       - Family court
