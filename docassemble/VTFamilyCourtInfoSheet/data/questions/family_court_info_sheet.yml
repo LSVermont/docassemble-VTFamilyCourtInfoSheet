@@ -1,3 +1,4 @@
+#Interview works. Need to get all data into PDF (birthdates, court county). Need to do the review screen. Need to incorporate sharedYMLfile.
 ---
 include:
   - docassemble.AssemblyLine:assembly_line.yml
@@ -20,10 +21,18 @@ metadata:
     https://vtlawhelp.org/roadmap/divorce/step-3
   help_page_title: >-
     Divorce Roadmap
-  allowed_courts: []
+  allowed courts: 
+    - "Family Court"
   typical_role: "plaintiff"
   al_weaver_version: "1.10.2"
   generated_on: "2023-11-11"
+---
+objects:
+  - all_courts: ALCourtLoader.using(file_name='courts_list.xlsx')
+---
+code: |
+  trial_court = all_courts.as_court('trial_court', trial_court_index)
+  trial_court.geolocate()  
 ---
 code: |
   # This controls the default country and list of states in address field questions
@@ -44,6 +53,8 @@ code: |
 ---
 objects:
   - users: ALPeopleList.using(ask_number=True,target_number=1)
+  - other_parties: ALPeopleList.using(ask_number=True,target_number=1)
+  - children: ALPeopleList.using(ask_number=True,complete_attribute="complete")
 ---
 sections:
   - review_b_info_sheet_family_court: Review your answers
@@ -58,30 +69,29 @@ code: |
   nav.set_section("review_b_info_sheet_family_court")
   user_role = "plaintiff"
   user_ask_role = "plaintiff"
-  trial_court.address.address
   docket_number
-  OCS_filing_form_yes
+  trial_court.address.address
+  OCS_filing_form
   set_progress(12)
+  user_is_plaintiff
   users.gather()
   set_parts(subtitle=str(users))
-  users[0].address.address
-  users1_address_mailing
+  users1_mailing_address_different
   set_progress(24)
-  users[0].email
-  users1_birth_month
+  users1_daytime_phone_number
+  users[0].birthdate
   users1_gets_public_assistance
   set_progress(36)
-  users1_attorneys_name
+  users1_has_attorney
   other_parties.gather()
-  other_parties[0].address.address
+  other_parties[0].name.first
+  other_parties1_mailing_address_different
   set_progress(48)
-  other_parties1_address_mailing
   other_parties1_daytime_phone_number
-  other_parties[0].email
   set_progress(60)
-  other_parties1_birth_month
+  other_parties[0].birth_month
   other_parties1_gets_child_support
-  other_parties1_attorneys_name
+  other_parties1_has_attorney
   set_progress(72)
   other_family_juv_probate_proceedings
   interview_order_b_info_sheet_family_court = True
@@ -115,18 +125,103 @@ question: |
 subquestion: |
   This interview will help you fill in the Vermont Family Court Information Sheet.
   
-  Before you get started, please gather:
+  This form is required for many family court cases. It is required when you file for a divorce.  
+
+  Before you get started, you will need:
   
-  1. 
-  1. 
-  1. 
+  - your contact information
   
-  When you are finished, you will need to:
+  - the other party's birth date and contact information (including mailing address, phone and email)
   
-  1. 
-  1. 
+  - location of other family, juvenile or probate court cases that are in progress, and
   
-  Most people take about _______ minutes to finish this interview.
+  - if there are lawyers involved: their name(s) and phone number(s).
+  
+  
+  Most people take about 20 minutes to finish this interview.
+---
+id: choose a court
+question: |
+  Choose a Family Court
+fields:
+  - note: |
+      Choose the county where you will file this form. 
+      
+      If the court case has already been started, select the county that you filed your forms in.
+      
+      Not sure what county? [Check this list of cities and towns to find the county.](https://en.m.wikipedia.org/wiki/List_of_municipalities_in_Vermont#Cities)
+  - County: trial_court_index
+    code: all_courts._load_courts()['address_county'].items()
+---
+id: user is plaintiff
+question: |
+  Gathering information
+subquestion: | 
+  We will first collect information about the person who is listed as the **plaintiff** in the family court case. We will call that person "you."
+  
+  If you are filling out this form and you are listed as the **defendant** in the court case, please enter the plaintiff's information first.
+  
+  Look at your other court papers to see if you are listed as the plaintiff or the defendant for this court case.
+  
+continue button field: user_is_plaintiff    
+---
+id: your name
+sets:
+    - users[0].name.first
+    - users[0].name.last
+    - users[0].name.middle
+    - users[0].name.suffix
+question:  |
+  What is your name? 
+subquestion:  |
+  Enter the name of the plaintiff.
+fields:
+  - code: |
+      users[0].name_fields()
+---
+id: Gather users street address
+sets:
+  - users[0].address.address
+  - users[0].address.city
+  - users[0].address.zip
+  - users[0].address.unit
+  - users[0].address.state
+  - users[0].address.country
+question: |
+  What is your address?
+subquestion: |
+  Use an address where it is safe for the court to contact you. 
+  
+  Note: If needed, you can [talk with an advocate](https://vtnetwork.org/) about how to get a safer mailing address. 
+fields:
+  - code: |
+      users[0].address_fields(default_state=AL_DEFAULT_STATE)
+  - I have a mailing address that is different from my street address: users1_mailing_address_different
+    datatype: yesno
+  - Mailing address: users[0].mailing_address.address
+    address autocomplete: True
+    show if: users1_mailing_address_different
+  - Unit: users[0].mailing_address.unit
+    required: False
+    show if: users1_mailing_address_different
+  - City: users[0].mailing_address.city
+    show if: users1_mailing_address_different
+  - State: users[0].mailing_address.state
+    code: |
+      states_list()
+    default: VT
+    show if: users1_mailing_address_different
+  - Zip or postal code: users[0].mailing_address.zip
+    required: False
+    show if: users1_mailing_address_different
+---
+id: you birthdate question
+question: |
+  When were you born?
+fields:
+  - Birthdate: users[0].birthdate
+    required: True
+    datatype: BirthDate
 ---
 id: users birthdate
 question: |
@@ -139,29 +234,38 @@ fields:
   - "Year - last two digits": users1_birth_year
     maxlength: 2
 ---
-id: users address and phone number
+id: users phone numbers and email
 question: |
-  Your address and phone number
+  Your contact information
 fields:
-  - "Your mailing address": users1_address_mailing
-    maxlength: 42
   - "Your daytime phone number": users1_daytime_phone_number
     maxlength: 17
+    required: False
   - "Your evening phone number": users1_evening_phone_number
     maxlength: 17
+    required: False
+  - Your email address: users[0].email    
+    datatype: email
+    required: False
 ---
 id: users lawyer
 question: |
-  Your lawyer
+  Lawyer
 fields:
+  - "Do you have a lawyer working with you on this case?": users1_has_attorney
+    datatype: yesnoradio
   - "Your lawyer's name": users1_attorneys_name
     maxlength: 20
+    required: False
+    show if: users1_has_attorney
   - "Your lawyer's phone number": users1_attorneys_phone_number
     maxlength: 21
+    required: False
+    show if: users1_has_attorney
 ---
 id: users benefits or child support
 question: |
-  Any benefits or child support
+  Do you get any benefits or child support?
 fields:
   - note: |
       Check all that apply.
@@ -173,81 +277,236 @@ fields:
     
   - "I get child support": users1_gets_child_support
     datatype: yesno
+    
+  - note: |
+      The Office of Child Support can help people with child support questions and problems. Call them at 1-800-786-3214 or TTY access number 1-800-253-0191.
+
 ---
-id: defendants birthdate
+id: Gather defendant name
+sets:
+  - other_parties[0].name.first
+  - other_parties[0].name.last
 question: |
-  Defendant's birthdate
+  Name of the other party
+subquestion: |
+  Enter the name of the “defendant".
 fields:
-  - "Month of defendant's birth": other_parties1_birth_month
-    maxlength: 2
-  - "Day": other_parties1_birth_day
-    maxlength: 2
-  - "Year - last 2 digits": other_parties1_birth_year
-    maxlength: 2
+  - First Name: other_parties[0].name.first
+  - Middle Name: other_parties[0].name.middle
+    required: False
+  - Last Name: other_parties[0].name.last
+  - Suffix: other_parties[0].name.suffix
+    choices: 
+      - Jr
+      - Sr
+      - I
+      - II
+      - III
+    required: False
+
 ---
-id: defendants mailing address
+id: birthdate question
 question: |
-  Defendant's mailing address
+  When was ${ other_parties[0].name } born?
 fields:
-  - "Defendant's mailing address": other_parties1_address_mailing
-    maxlength: 44
+  - Month: other_parties[0].birth_month
+    choices:
+      - January: 1
+      - February: 2
+      - March: 3
+      - April: 4
+      - May: 5
+      - June: 6
+      - July: 7
+      - August: 8
+      - September: 9
+      - October: 10
+      - November: 11
+      - December: 12
+    required: False
+  - Day: other_parties[0].birth_day
+    datatype: integer
+    code: |
+      range(1,31+1)
+    required: False
+  - Year: other_parties[0].birth_year
+    code: |
+      list(range(today().year, today().year - 100 - 1, -1))
+    required: False
+---
+sets:
+  - other_parties[0].address.address
+  - other_parties[0].address.city
+  - other_parties[0].address.zip
+  - other_parties[0].address.unit
+  - other_parties[0].address.state
+  - other_parties[0].address.country
+question: |
+  What is the other party's address (the defendant)?
+fields:
+  - code: |
+      other_parties[0].address_fields(default_state=AL_DEFAULT_STATE)
+  - The other party has a mailing address that is different from their street address: other_parties1_mailing_address_different
+    datatype: yesno
+  - Mailing address: other_parties[0].mailing_address.address
+    address autocomplete: True
+    show if: other_parties1_mailing_address_different
+  - Unit: other_parties[0].mailing_address.unit
+    required: False
+    show if: other_parties1_mailing_address_different
+  - City: other_parties[0].mailing_address.city
+    show if: other_parties1_mailing_address_different
+  - State: other_parties[0].mailing_address.state
+    code: |
+      states_list()
+    default: VT
+    show if: other_parties1_mailing_address_different
+  - Zip or postal code: other_parties[0].mailing_address.zip
+    required: False
+    show if: other_parties1_mailing_address_different
+
+---
+#id: ask defendant address
+#continue button field: ask_defendant_address
+#question: |
+#  What is the defendant's address?
+#fields:
+#  - code: |
+#      other_parties[0].address_fields(default_state=AL_DEFAULT_STATE)
+#  - They have a mailing address that is different from their street address: other_parties1_mailing_address_different
+#    datatype: yesno
+#  - Mailing address: other_parties[0].mailing_address.address
+#    address autocomplete: True
+#    show if: other_parties1_mailing_address_different
+#  - Unit: other_parties[0].mailing_address.unit
+#    required: False
+#    show if: other_parties1_mailing_address_different
+#  - City: other_parties[0].mailing_address.city
+#    show if: other_parties1_mailing_address_different
+#  - State: other_parties[0].mailing_address.state
+#    code: |
+#      states_list()
+#    default: VT
+#    show if: other_parties1_mailing_address_different
+#  - Zip or postal code: other_parties[0].mailing_address.zip
+#    required: False
+#    show if: other_parties1_mailing_address_different
+---
+
+
 ---
 id: defendants phone numbers
 question: |
-  Defendant's phone numbers
+  Other party's contact information (the defendant)
 fields:
   - "Defendant's daytime phone number": other_parties1_daytime_phone_number
     maxlength: 17
+    required: False
   - "Defendant's evening phone number": other_parties1_evening_phone_number
     maxlength: 17
+    required: False
+  - Your email address: other_parties[0].email    
+    datatype: email
+    required: False
 ---
 id: defendants lawyer
 question: |
-  Defendant's lawyer
+  The other party's lawyer
 fields:
-  - "Defendant's lawyer's name": other_parties1_attorneys_name
+  - "Does the defendant have a lawyer working with them on this case?": other_parties1_has_attorney
+    datatype: yesnoradio
+  - "Their lawyer's name": other_parties1_attorneys_name
     maxlength: 20
-  - "Defendant's lawyer's phone number": other_parties1_attorneys_phone_number
-    maxlength: 24
+    required: False
+    show if: other_parties1_has_attorney
+  - "Their lawyer's phone number": other_parties1_attorneys_phone_number
+    maxlength: 21
+    required: False
+    show if: other_parties1_has_attorney
 ---
 id: defendant gets child support
 question: |
-  Defendant gets child support?
+  Other party gets child support?
 fields:
-  - "Does defendant get child support?": other_parties1_gets_child_support
+  - "Does the defendant get child support?": other_parties1_gets_child_support
     datatype: yesno
 ---
 id: office of child support
 question: |
   Office of Child Support
 fields:
-  - "Check this box if the Vermont Office of Child Support is filing this form.": OCS_filing_form_yes
+  - "Check this box if you are an employee of the Office of Child Support who is filling out this form": OCS_filing_form
     datatype: yesno
+  - note: |
+      If you are not an OCS employee, continue to the next question.
 ---
 id: other court proceedings
 question: |
   Other court proceedings
+subquestion: |
+  Are there other Family court, Probate court or Juvenile court cases involving you, the other party and/or your children?
 fields:
-  - "Are there other family court, probate court or juvenile court cases involving yourself, the other party and/or your children?": other_family_juv_probate_proceedings
+  - "Other court cases?": other_family_juv_probate_proceedings
     datatype: yesnoradio
-  - "How many?": number_of_proceedings
-    datatype: integer
-    maxlength: 2
-    show if: other_family_juv_probate_proceedings
   - "In what county?": trial_court_county_other_filing1
-    maxlength: 30
-  - "In what court division (family court, probate court or juvenile court)?": trial_court_division_other_filing1
-    maxlength: 30
+    choices:
+      - Addison
+      - Bennington
+      - Caledonia
+      - Chittenden
+      - Essex
+      - Franklin
+      - Grand Isle
+      - Lamoille
+      - Orange
+      - Orleans
+      - Rutland
+      - Washington
+      - Windham
+      - Windsor
+    show if: other_family_juv_probate_proceedings
+  - "In what court division?": trial_court_division_other_filing1
+    choices:
+      - Family court
+      - Probate court
+      - Juvenile court
+    show if: other_family_juv_probate_proceedings
   - "In what state?": trial_court_state_other_filing1
     code: |
       states_list()
+    show if: other_family_juv_probate_proceedings
+    default: VT
+  - "I have another to list": other_family_juv_probate_proceedings2
+    datatype: yesno
+    show if: other_family_juv_probate_proceedings
   - "In what county?": trial_court_county_other_filing2
-    maxlength: 30
-  - "In what court division (family court, probate court or juvenile court)?": trial_court_division_other_filing2
-    maxlength: 30
+    choices:
+      - Addison
+      - Bennington
+      - Caledonia
+      - Chittenden
+      - Essex
+      - Franklin
+      - Grand Isle
+      - Lamoille
+      - Orange
+      - Orleans
+      - Rutland
+      - Washington
+      - Windham
+      - Windsor
+    show if: other_family_juv_probate_proceedings2
+  - "In what court division?": trial_court_division_other_filing2
+    choices:
+      - Family court
+      - Probate court
+      - Juvenile court
+    show if: other_family_juv_probate_proceedings2
   - "In what state?": trial_court_state_other_filing2
     code: |
       states_list()
+    show if: other_family_juv_probate_proceedings2
+    default: VT
 ---
 id: preview family_court_info_sheet
 question: |
@@ -329,14 +588,11 @@ review:
     button: |
       **Year**:
       ${ other_parties1_birth_year }
-  - Edit: users1_address_mailing
-    button: |
-      **Your mailing address**:
-      ${ users1_address_mailing }
+
   - Edit: other_parties1_address_mailing
     button: |
       **Defendant's mailing address**:
-      ${ other_parties1_address_mailing }
+      ${ other_parties[0].mailing_address.address }
   - Edit: users1_daytime_phone_number
     button: |
       **Your daytime phone number**:
@@ -369,10 +625,10 @@ review:
     button: |
       **Your lawyer's phone number**:
       ${ users1_attorneys_phone_number }
-  - Edit: OCS_filing_form_yes
+  - Edit: OCS_filing_form
     button: |
       **Is Vermont Office of Child Support filing this form?**:
-      ${ word(yesno(OCS_filing_form_yes)) }
+      ${ word(yesno(OCS_filing_form)) }
   - Edit: users1_gets_public_assistance
     button: |
       **Do you get public assistance?**:
@@ -521,8 +777,8 @@ attachment:
       - "other_parties1_birth_year": ${ other_parties1_birth_year }
       - "users1_address_address": ${ users[0].address.address }
       - "other_parties1_address_address": ${ other_parties[0].address.address }
-      - "users1_address_mailing": ${ users1_address_mailing }
-      - "other_parties1_address_mailing": ${ other_parties1_address_mailing }
+      - "users1_address_mailing": ${ users[0].mailing_address.address }
+      - "other_parties1_address_mailing": ${ other_parties[0].mailing_address.address }
       - "other_parties1_address_zip": ${ other_parties[0].address.zip }
       - "users1_address_city": ${ users[0].address.city }
       - "other_parties1_address_city": ${ other_parties[0].address.city }
@@ -539,7 +795,7 @@ attachment:
       - "other_parties1_attorneys_phone_number": ${ other_parties1_attorneys_phone_number }
       - "users1_attorneys_name": ${ users1_attorneys_name }
       - "users1_attorneys_phone_number": ${ users1_attorneys_phone_number }
-      - "OCS_filing_form_yes": ${ OCS_filing_form_yes }
+      - "OCS_filing_form_yes": ${ OCS_filing_form }
       - "users1_gets_public_assistance": ${ users1_gets_public_assistance }
       - "users1_gets_child_support": ${ users1_gets_child_support }
       - "other_parties1_gets_child_support": ${ other_parties1_gets_child_support }
