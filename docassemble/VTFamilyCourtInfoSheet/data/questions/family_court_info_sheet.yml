@@ -12,7 +12,7 @@ metadata:
   short title: >-
     Family court info sheet
   description: |-
-    This interview helps someone in Vermont fill in the Family Court Information Sheet. The form is required for many family court cases. It is required when you file for a divorce.
+    This interview helps someone in Vermont fill in the Family Court Information Sheet - Form 800. The form is required for many family court cases. It is required when you file for a divorce.
   tags:
     - "FA-06-00-00-00"
   authors:
@@ -251,17 +251,7 @@ fields:
   - Birthdate: users[0].birthdate
     required: True
     datatype: BirthDate
----
-#id: users birthdate
-#question: |
-#  When is ${ users[0].name }'s birthdate?
-#fields:
-#  - "Month of birth": users1_birth_month
-#    maxlength: 2
-#  - "Day": users1_birth_day
-#    maxlength: 2
-#  - "Year - last two digits": users1_birth_year
-#    maxlength: 2
+
 ---
 id: Gather users contact information
 question: |
@@ -341,35 +331,6 @@ fields:
     required: False
 
 ---
-#id: birthdate question
-#question: |
-#  When was ${ other_parties[0].name } born?
-#fields:
-#  - Month: other_parties[0].birth_month
-#    choices:
-#      - January: 1
-#      - February: 2
-#      - March: 3
-#      - April: 4
-#      - May: 5
-#      - June: 6
-#      - July: 7
-#      - August: 8
-#      - September: 9
-#      - October: 10
-#      - November: 11
-#      - December: 12
-#    required: False
-#  - Day: other_parties[0].birth_day
-#    datatype: integer
-#    code: |
-#      range(1,31+1)
-#    required: False
-#  - Year: other_parties[0].birth_year
-#    code: |
-#      list(range(today().year, today().year - 100 - 1, -1))
-#    required: False
----
 sets:
   - other_parties[0].address.address
   - other_parties[0].address.city
@@ -400,33 +361,6 @@ fields:
   - Zip or postal code: other_parties[0].mailing_address.zip
     required: False
     show if: other_parties1_mailing_address_different
-
----
-#id: ask defendant address
-#continue button field: ask_defendant_address
-#question: |
-#  What is the defendant's address?
-#fields:
-#  - code: |
-#      other_parties[0].address_fields(default_state=AL_DEFAULT_STATE)
-#  - They have a mailing address that is different from their street address: other_parties1_mailing_address_different
-#    datatype: yesno
-#  - Mailing address: other_parties[0].mailing_address.address
-#    address autocomplete: True
-#    show if: other_parties1_mailing_address_different
-#  - Unit: other_parties[0].mailing_address.unit
-#    required: False
-#    show if: other_parties1_mailing_address_different
-#  - City: other_parties[0].mailing_address.city
-#    show if: other_parties1_mailing_address_different
-#  - State: other_parties[0].mailing_address.state
-#    code: |
-#      states_list()
-#    default: VT
-#    show if: other_parties1_mailing_address_different
-#  - Zip or postal code: other_parties[0].mailing_address.zip
-#    required: False
-#    show if: other_parties1_mailing_address_different
 ---
 id: defendants phone numbers
 question: |
@@ -492,7 +426,6 @@ fields:
     code: |
       states_list()
     show if: other_family_juv_probate_proceedings
-    #default: VT
   - "In what county?": trial_court_county_other_filing1
     choices:
       - Addison
@@ -529,7 +462,6 @@ fields:
     code: |
       states_list()
     show if: other_family_juv_probate_proceedings2
-    #default: VT
   - "In what county?": trial_court_county_other_filing2
     choices:
       - Addison
