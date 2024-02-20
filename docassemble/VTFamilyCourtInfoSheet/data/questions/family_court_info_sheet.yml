@@ -12,7 +12,7 @@ metadata:
   short title: >-
     Family court info sheet
   description: |-
-    This interview helps someone in Vermont fill in the Family Court Information Sheet. The form is required for many family court cases. It is required when you file for a divorce.
+    This interview helps someone in Vermont fill in the Family Court Information Sheet -- Form 800. The form is required for many family court cases. It is required when you file for a divorce.
   tags:
     - "FA-06-00-00-00"
   authors:
@@ -48,7 +48,7 @@ code: |
   github_repo_name =  'docassemble-BInfoSheetFamilyCourt'
 ---
 code: |
-  interview_short_title = "Fill in the Vermont Family Court Information Sheet"
+  interview_short_title = "Fill in the Vermont Family Court Information Sheet -- Form 800"
 ---
 code: |
   al_form_type = "starts_case" 
@@ -69,6 +69,7 @@ code: |
   # Set the allowed courts for this interview
   allowed_courts = []
   nav.set_section("review_b_info_sheet_family_court")
+  how_to_edit_answers
   docket_number
   trial_court.address.address
   OCS_filing_form
@@ -126,7 +127,7 @@ subquestion: |
 
   <p>${ intro_vtcourtforms_3_steps }</p>
   
-  <i class="fas fa-file-text fa-2x"></i>This interview will help you fill in the Vermont Family Court Information Sheet - Form 800. This form is required for many family court cases. It is required when you file for a divorce.  
+  <i class="fas fa-file-text fa-2x"></i>This interview will help you fill in the Vermont Family Court Information Sheet -- Form 800. This form is required for many family court cases. It is required when you file for a divorce.  
 
   Before you get started, you will need:
   
@@ -152,6 +153,15 @@ fields:
       minlength: |
         You cannot continue unless you agree to the terms of use.        
 continue button field: al_intro_screen
+---
+id: how_to_edit_answers
+question: |
+  How to edit your answers
+subquestion: |
+  ${ intro_how_to_edit_answers }
+  
+  ${ collapse_template(asterisk) }
+continue button field: how_to_edit_answers
 ---
 id: choose a court
 question: |
@@ -251,17 +261,7 @@ fields:
   - Birthdate: users[0].birthdate
     required: True
     datatype: BirthDate
----
-#id: users birthdate
-#question: |
-#  When is ${ users[0].name }'s birthdate?
-#fields:
-#  - "Month of birth": users1_birth_month
-#    maxlength: 2
-#  - "Day": users1_birth_day
-#    maxlength: 2
-#  - "Year - last two digits": users1_birth_year
-#    maxlength: 2
+
 ---
 id: Gather users contact information
 question: |
@@ -341,35 +341,6 @@ fields:
     required: False
 
 ---
-#id: birthdate question
-#question: |
-#  When was ${ other_parties[0].name } born?
-#fields:
-#  - Month: other_parties[0].birth_month
-#    choices:
-#      - January: 1
-#      - February: 2
-#      - March: 3
-#      - April: 4
-#      - May: 5
-#      - June: 6
-#      - July: 7
-#      - August: 8
-#      - September: 9
-#      - October: 10
-#      - November: 11
-#      - December: 12
-#    required: False
-#  - Day: other_parties[0].birth_day
-#    datatype: integer
-#    code: |
-#      range(1,31+1)
-#    required: False
-#  - Year: other_parties[0].birth_year
-#    code: |
-#      list(range(today().year, today().year - 100 - 1, -1))
-#    required: False
----
 sets:
   - other_parties[0].address.address
   - other_parties[0].address.city
@@ -400,33 +371,6 @@ fields:
   - Zip or postal code: other_parties[0].mailing_address.zip
     required: False
     show if: other_parties1_mailing_address_different
-
----
-#id: ask defendant address
-#continue button field: ask_defendant_address
-#question: |
-#  What is the defendant's address?
-#fields:
-#  - code: |
-#      other_parties[0].address_fields(default_state=AL_DEFAULT_STATE)
-#  - They have a mailing address that is different from their street address: other_parties1_mailing_address_different
-#    datatype: yesno
-#  - Mailing address: other_parties[0].mailing_address.address
-#    address autocomplete: True
-#    show if: other_parties1_mailing_address_different
-#  - Unit: other_parties[0].mailing_address.unit
-#    required: False
-#    show if: other_parties1_mailing_address_different
-#  - City: other_parties[0].mailing_address.city
-#    show if: other_parties1_mailing_address_different
-#  - State: other_parties[0].mailing_address.state
-#    code: |
-#      states_list()
-#    default: VT
-#    show if: other_parties1_mailing_address_different
-#  - Zip or postal code: other_parties[0].mailing_address.zip
-#    required: False
-#    show if: other_parties1_mailing_address_different
 ---
 id: defendants phone numbers
 question: |
@@ -454,7 +398,7 @@ question: |
   ${ other_parties[0].name }'s lawyer
 fields:
   - "Does ${ other_parties[0].name } have a lawyer for this case?": other_parties1_has_attorney
-    datatype: yesnoradio
+    datatype: yesnomaybe
   - "Lawyer's name": other_parties1_attorneys_name
     maxlength: 20
     required: False
@@ -492,7 +436,6 @@ fields:
     code: |
       states_list()
     show if: other_family_juv_probate_proceedings
-    #default: VT
   - "In what county?": trial_court_county_other_filing1
     choices:
       - Addison
@@ -529,7 +472,6 @@ fields:
     code: |
       states_list()
     show if: other_family_juv_probate_proceedings2
-    #default: VT
   - "In what county?": trial_court_county_other_filing2
     choices:
       - Addison
@@ -559,6 +501,8 @@ fields:
       - Probate court
       - Juvenile court
     show if: other_family_juv_probate_proceedings2
+  - note: |
+      ${ after_last_question_we_will_generate_your_forms }
 ---
 id: preview family_court_info_sheet
 question: |
@@ -571,11 +515,12 @@ subquestion: |
   Click the image to open it in a new tab. Click the "Edit answers" button
   to edit your answers.
 
-  ${ action_button_html(url_action('review_b_info_sheet_family_court'), label='Edit answers', color='info') }
+  ${ action_button_html(url_action('review_b_info_sheet_family_court'), label='Edit your answers', color='info') }
   
   Remember to come back to this window to continue and sign your form.
 continue button field: b_info_sheet_family_court_preview_question    
 ---
+#no signature needed on this form
 #code: |
   #signature_fields = []
 ---
@@ -590,6 +535,8 @@ id: info sheet review screen
 event: review_b_info_sheet_family_court
 question: |
   Review your answers
+subquestion: |
+  ${ review_screen_instructions }
 review:
   - Edit: docket_number
     button: |
@@ -721,6 +668,8 @@ review:
     button: |
       **In this state**:
       ${ trial_court_state_other_filing2 }
+  - note: |
+      ${ review_screen_select_resume_will_take_moment }
 ---
 continue button field: users.revisit
 question: |
@@ -779,19 +728,22 @@ confirm: True
 id: download info sheet
 event: b_info_sheet_family_court_download
 question: |
-  All done
+  ${ download_screen_instructions_headline }
 subquestion: |
-  Thank you ${users}. Your form is ready to download and deliver.
-  
-  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+  ${ download_screen_instructions }
 
-  ${ action_button_html(url_action('review_b_info_sheet_family_court'), label='Edit answers', color='info') }
+  ${ action_button_html(url_action('review_b_info_sheet_family_court'), label='Edit your answers', color='info') }
   
   
   ${ al_user_bundle.download_list_html() }
   
 
   ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+
+  ${ download_screen_bottom_instructions }
+  
+  ${ collapse_template(not_seeing_email) }
+  ${ collapse_template(log_out_when_done) }
 
 progress: 100
 ---
