@@ -454,7 +454,7 @@ question: |
   ${ other_parties[0].name }'s lawyer
 fields:
   - "Does ${ other_parties[0].name } have a lawyer for this case?": other_parties1_has_attorney
-    datatype: yesnoradio
+    datatype: yesnomaybe
   - "Lawyer's name": other_parties1_attorneys_name
     maxlength: 20
     required: False
