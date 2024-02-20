@@ -827,16 +827,16 @@ attachment:
       - "trial_court_county": ${ trial_court.address.county }
       - "users1_name": ${ users[0] }
       - "other_parties1_name": ${ other_parties[0] }
-      - "users1_birthdate": ${ users[0].birthdate.format() }
+      - "users1_birthdate": ${ format_date(users[0].birthdate, format='M/d/yyyy') }
       - "users1_birth_month": ${ users1_birth_month }
       - "users1_birth_day": ${ users1_birth_day }
       - "users1_birth_year": ${ users1_birth_year }
-      - "other_parties1_birthdate": ${ other_parties[0].birthdate }
+      - "other_parties1_birthdate": ${ format_date(other_parties[0].birthdate, format='M/d/yyyy') }
       - "other_parties1_birth_month": ${ other_parties1_birth_month }
       - "other_parties1_birth_day": ${ other_parties1_birth_day }
       - "other_parties1_birth_year": ${ other_parties1_birth_year }
-      - "users1_address_address": ${ users[0].address.address }
-      - "other_parties1_address_address": ${ other_parties[0].address.address }
+      - "users1_address_address": ${ users[0].address.line_one() }
+      - "other_parties1_address_address": ${ other_parties[0].address.line_one() }
       - "users1_address_mailing": ${ users[0].mailing_address.address }
       - "other_parties1_address_mailing": ${ other_parties[0].mailing_address.address }
       - "other_parties1_address_zip": ${ other_parties[0].address.zip }
