@@ -12,7 +12,7 @@ metadata:
   short title: >-
     Family court info sheet
   description: |-
-    This interview helps someone in Vermont fill in the Family Court Information Sheet - Form 800. The form is required for many family court cases. It is required when you file for a divorce.
+    This interview helps someone in Vermont fill in the Family Court Information Sheet -- Form 800. The form is required for many family court cases. It is required when you file for a divorce.
   tags:
     - "FA-06-00-00-00"
   authors:
@@ -48,7 +48,7 @@ code: |
   github_repo_name =  'docassemble-BInfoSheetFamilyCourt'
 ---
 code: |
-  interview_short_title = "Fill in the Vermont Family Court Information Sheet"
+  interview_short_title = "Fill in the Vermont Family Court Information Sheet -- Form 800"
 ---
 code: |
   al_form_type = "starts_case" 
@@ -69,6 +69,7 @@ code: |
   # Set the allowed courts for this interview
   allowed_courts = []
   nav.set_section("review_b_info_sheet_family_court")
+  how_to_edit_answers
   docket_number
   trial_court.address.address
   OCS_filing_form
@@ -126,7 +127,7 @@ subquestion: |
 
   <p>${ intro_vtcourtforms_3_steps }</p>
   
-  <i class="fas fa-file-text fa-2x"></i>This interview will help you fill in the Vermont Family Court Information Sheet - Form 800. This form is required for many family court cases. It is required when you file for a divorce.  
+  <i class="fas fa-file-text fa-2x"></i>This interview will help you fill in the Vermont Family Court Information Sheet -- Form 800. This form is required for many family court cases. It is required when you file for a divorce.  
 
   Before you get started, you will need:
   
@@ -152,6 +153,15 @@ fields:
       minlength: |
         You cannot continue unless you agree to the terms of use.        
 continue button field: al_intro_screen
+---
+id: how_to_edit_answers
+question: |
+  How to edit your answers
+subquestion: |
+  ${ intro_how_to_edit_answers }
+  
+  ${ collapse_template(asterisk) }
+continue button field: how_to_edit_answers
 ---
 id: choose a court
 question: |
@@ -491,6 +501,8 @@ fields:
       - Probate court
       - Juvenile court
     show if: other_family_juv_probate_proceedings2
+  - note: |
+      ${ after_last_question_we_will_generate_your_forms }
 ---
 id: preview family_court_info_sheet
 question: |
@@ -503,11 +515,12 @@ subquestion: |
   Click the image to open it in a new tab. Click the "Edit answers" button
   to edit your answers.
 
-  ${ action_button_html(url_action('review_b_info_sheet_family_court'), label='Edit answers', color='info') }
+  ${ action_button_html(url_action('review_b_info_sheet_family_court'), label='Edit your answers', color='info') }
   
   Remember to come back to this window to continue and sign your form.
 continue button field: b_info_sheet_family_court_preview_question    
 ---
+#no signature needed on this form
 #code: |
   #signature_fields = []
 ---
@@ -522,6 +535,8 @@ id: info sheet review screen
 event: review_b_info_sheet_family_court
 question: |
   Review your answers
+subquestion: |
+  ${ review_screen_instructions }
 review:
   - Edit: docket_number
     button: |
@@ -653,6 +668,8 @@ review:
     button: |
       **In this state**:
       ${ trial_court_state_other_filing2 }
+  - note: |
+      ${ review_screen_select_resume_will_take_moment }
 ---
 continue button field: users.revisit
 question: |
@@ -711,19 +728,22 @@ confirm: True
 id: download info sheet
 event: b_info_sheet_family_court_download
 question: |
-  All done
+  ${ download_screen_instructions_headline }
 subquestion: |
-  Thank you ${users}. Your form is ready to download and deliver.
-  
-  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+  ${ download_screen_instructions }
 
-  ${ action_button_html(url_action('review_b_info_sheet_family_court'), label='Edit answers', color='info') }
+  ${ action_button_html(url_action('review_b_info_sheet_family_court'), label='Edit your answers', color='info') }
   
   
   ${ al_user_bundle.download_list_html() }
   
 
   ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+
+  ${ download_screen_bottom_instructions }
+  
+  ${ collapse_template(not_seeing_email) }
+  ${ collapse_template(log_out_when_done) }
 
 progress: 100
 ---
