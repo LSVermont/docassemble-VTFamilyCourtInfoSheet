@@ -126,7 +126,7 @@ subquestion: |
 
   <p>${ intro_vtcourtforms_3_steps }</p>
   
-  <i class="fas fa-file-text fa-2x"></i>This interview will help you fill in the Vermont Family Court Information Sheet. This form is required for many family court cases. It is required when you file for a divorce.  
+  <i class="fas fa-file-text fa-2x"></i>This interview will help you fill in the Vermont Family Court Information Sheet - Form 800. This form is required for many family court cases. It is required when you file for a divorce.  
 
   Before you get started, you will need:
   
@@ -488,6 +488,11 @@ subquestion: |
 fields:
   - "Other court cases?": other_family_juv_probate_proceedings
     datatype: yesnoradio
+  - "In what state?": trial_court_state_other_filing1
+    code: |
+      states_list()
+    show if: other_family_juv_probate_proceedings
+    #default: VT
   - "In what county?": trial_court_county_other_filing1
     choices:
       - Addison
@@ -517,14 +522,14 @@ fields:
       - Probate court
       - Juvenile court
     show if: other_family_juv_probate_proceedings
-  - "In what state?": trial_court_state_other_filing1
-    code: |
-      states_list()
-    show if: other_family_juv_probate_proceedings
-    default: VT
   - "I have another to list": other_family_juv_probate_proceedings2
     datatype: yesno
     show if: other_family_juv_probate_proceedings
+  - "In what state?": trial_court_state_other_filing2
+    code: |
+      states_list()
+    show if: other_family_juv_probate_proceedings2
+    #default: VT
   - "In what county?": trial_court_county_other_filing2
     choices:
       - Addison
@@ -554,11 +559,6 @@ fields:
       - Probate court
       - Juvenile court
     show if: other_family_juv_probate_proceedings2
-  - "In what state?": trial_court_state_other_filing2
-    code: |
-      states_list()
-    show if: other_family_juv_probate_proceedings2
-    default: VT
 ---
 id: preview family_court_info_sheet
 question: |
@@ -827,16 +827,16 @@ attachment:
       - "trial_court_county": ${ trial_court.address.county }
       - "users1_name": ${ users[0] }
       - "other_parties1_name": ${ other_parties[0] }
-      - "users1_birthdate": ${ users[0].birthdate.format() }
+      - "users1_birthdate": ${ format_date(users[0].birthdate, format='M/d/yyyy') }
       - "users1_birth_month": ${ users1_birth_month }
       - "users1_birth_day": ${ users1_birth_day }
       - "users1_birth_year": ${ users1_birth_year }
-      - "other_parties1_birthdate": ${ other_parties[0].birthdate }
+      - "other_parties1_birthdate": ${ format_date(other_parties[0].birthdate, format='M/d/yyyy') }
       - "other_parties1_birth_month": ${ other_parties1_birth_month }
       - "other_parties1_birth_day": ${ other_parties1_birth_day }
       - "other_parties1_birth_year": ${ other_parties1_birth_year }
-      - "users1_address_address": ${ users[0].address.address }
-      - "other_parties1_address_address": ${ other_parties[0].address.address }
+      - "users1_address_address": ${ users[0].address.line_one() }
+      - "other_parties1_address_address": ${ other_parties[0].address.line_one() }
       - "users1_address_mailing": ${ users[0].mailing_address.address }
       - "other_parties1_address_mailing": ${ other_parties[0].mailing_address.address }
       - "other_parties1_address_zip": ${ other_parties[0].address.zip }
@@ -861,11 +861,21 @@ attachment:
       - "other_parties1_gets_child_support": ${ other_parties1_gets_child_support }
       - "other_family_juv_probate_proceedings_yes": ${ other_family_juv_probate_proceedings }
       - "other_family_juv_probate_proceedings_no": ${ not other_family_juv_probate_proceedings }
-      - "trial_court_county_other_filing1": ${ trial_court_county_other_filing1 }
+      - "trial_court_county_other_filing1": |
+          % if trial_court_county_other_filing1 == 'Other':
+          ${ trial_court_other_county_other_filing1 }
+          % else:
+          ${ trial_court_county_other_filing1 }
+          % endif
       - "trial_court_division_other_filing1": ${ trial_court_division_other_filing1 }
       - "trial_court_state_other_filing1": ${ trial_court_state_other_filing1 }
       - "trial_court_division_other_filing2": ${ trial_court_division_other_filing2 }
-      - "trial_court_county_other_filing2": ${ trial_court_county_other_filing2 }
+      - "trial_court_county_other_filing2": |
+          % if trial_court_county_other_filing2 == 'Other':
+          ${ trial_court_other_county_other_filing2 }
+          % else:
+          ${ trial_court_county_other_filing2 }
+          % endif
       - "trial_court_state_other_filing2": ${ trial_court_state_other_filing2 }
 
 
