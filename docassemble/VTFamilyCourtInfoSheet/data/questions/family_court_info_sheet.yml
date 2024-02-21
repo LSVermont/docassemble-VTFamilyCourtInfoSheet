@@ -266,7 +266,7 @@ id: Gather users contact information
 question: |
   What is ${ users[0].name }'s contact information?
 subquestion: |
-  Include at least **one way** to reach them. 
+  Include **at least one way** to reach them. 
 fields:  
   - Daytime phone number: users[0].daytime_phone_number
     datatype: al_international_phone
@@ -375,7 +375,7 @@ id: defendants phone numbers
 question: |
   ${ other_parties[0].name }'s contact information
 subquestion: |
-  Include at least **one way** to reach them. 
+  Include **at least one way** to reach them. 
 fields:  
   - Daytime phone number: other_parties[0].daytime_phone_number
     datatype: al_international_phone
@@ -411,8 +411,8 @@ id: defendant gets child support
 question: |
   Child support
 fields:
-  - "Does Does ${ other_parties[0].name } get child support?": other_parties1_gets_child_support
-    datatype: yesnoradio
+  - "Does ${ other_parties[0].name } get child support?": other_parties1_gets_child_support
+    datatype: yesnomaybe
 ---
 id: office of child support
 question: |
@@ -674,7 +674,11 @@ review:
   - Edit: other_parties1_gets_child_support
     button: |
       - Defendant gets child support?:
+      % if other_parties1_gets_child_support == None:
+      **Unknown**
+      % else:
       **${ word(yesno(other_parties1_gets_child_support)) }**
+      % endif
   - note: | 
       ##Other proceedings##
   - Edit: other_family_juv_probate_proceedings
