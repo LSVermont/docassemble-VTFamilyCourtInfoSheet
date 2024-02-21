@@ -1,4 +1,4 @@
-#On this form, the plaintiff is the "user"
+#On this form, the plaintiff is set to being the "user."
 ---
 include:
   - docassemble.AssemblyLine:assembly_line.yml
@@ -616,11 +616,9 @@ review:
     button: |
       - Plaintiff gets public assistance?:
       **${ word(yesno(users1_gets_public_assistance)) }**
-  - Edit: users1_gets_child_support
-    button: |
+
       - Plaintiff gets child support?:
-      **${ word(yesno(users1_gets_child_support)) }**
-      
+      **${ word(yesno(users1_gets_child_support)) }**     
   - note: | 
       ##Information about the defendant##      
   - Edit: other_parties.revisit
@@ -689,20 +687,26 @@ review:
       **${ trial_court_state_other_filing1 }**
 
       In this county:
+      % if trial_court_county_other_filing1 == 'Other':
+      **${ trial_court_other_county_other_filing1 }**
+      % else:
       **${ trial_court_county_other_filing1 }**
-
+      % endif
+      
       In this court division:
       **${ trial_court_division_other_filing1 }**
   - Edit: trial_court_state_other_filing2
     button: |
       In this state:
       **${ trial_court_state_other_filing2 }**
-  - Edit: trial_court_county_other_filing2
-    button: |
+
       In this county:
+      % if trial_court_county_other_filing2 == 'Other':
+      **${ trial_court_other_county_other_filing2 }**
+      % else:
       **${ trial_court_county_other_filing2 }**
-  - Edit: trial_court_division_other_filing2
-    button: |
+      % endif
+
       In this court division:
       **${ trial_court_division_other_filing2 }**
 
@@ -865,6 +869,3 @@ attachment:
           ${ trial_court_county_other_filing2 }
           % endif
       - "trial_court_state_other_filing2": ${ trial_court_state_other_filing2 }
-
-
-
