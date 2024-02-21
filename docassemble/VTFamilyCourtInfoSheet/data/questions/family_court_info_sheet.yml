@@ -288,7 +288,7 @@ question: |
   Lawyer
 fields:
   - "Does ${ users[0].name } have a lawyer for this case?": users1_has_attorney
-    datatype: yesnoradio
+    datatype: yesnomaybe
   - "Lawyer's name": users1_attorneys_name
     maxlength: 20
     required: False
@@ -593,12 +593,24 @@ review:
       % endif
   - Edit: users1_attorneys_name
     button: |
-      Plaintiff's lawyer's name:
-      **${ users1_attorneys_name }**
-  - Edit: users1_attorneys_phone_number
-    button: |
-      Plaintiff's lawyer's phone:
-      **${ users1_attorneys_phone_number }**
+      % if users1_has_attorney:
+        % if users1_attorneys_name != '':
+        - Plaintiff's lawyer's name: **${ showifdef('users1_attorneys_name') }**
+        % else:
+        - Lawyer's name: **Unknown**
+        % endif
+        % if users1_attorneys_phone_number != '':
+        - Lawyer's phone: **${ showifdef('users1_attorneys_phone_number') }**
+        % else:
+        - Lawyer's phone: **Unknown**
+        % endif
+      % endif
+      % if users1_has_attorney == False:
+        - Plaintiff has lawyer?: **No**
+      % endif
+      % if users1_has_attorney == None:
+        - Plaintiff has lawyer?: **Unknown**
+      % endif
   - Edit: users1_gets_public_assistance
     button: |
       Plaintiff gets public assistance?:
@@ -641,12 +653,16 @@ review:
       % endif
   - Edit: other_parties1_attorneys_name
     button: |
-      % if other_parties1_attorneys_name != '':
+      % if other_parties1_has_attorney and other_parties1_attorneys_name != '':
       - Defendant's lawyer's name: **${ showifdef('other_parties1_attorneys_name') }**
+      % else:
+      - Defendant's lawyer's name: **Unknown**
       % endif
       
-      % if other_parties1_attorneys_phone_number != '':
+      % if other_parties1_has_attorney and other_parties1_attorneys_phone_number != '':
       - Lawyer's phone: **${ showifdef('other_parties1_attorneys_phone_number') }**
+      % else:
+      - Lawyer's phone: **Unknown**
       % endif
   - Edit: other_parties1_gets_child_support
     button: |
@@ -662,12 +678,10 @@ review:
     button: |
       **In this state**:
       ${ trial_court_state_other_filing1 }
-  - Edit: trial_court_county_other_filing1
-    button: |
+
       **In this county**:
       ${ trial_court_county_other_filing1 }
-  - Edit: trial_court_division_other_filing1
-    button: |
+
       **In this court division**:
       ${ trial_court_division_other_filing1 }
   - Edit: trial_court_state_other_filing2
