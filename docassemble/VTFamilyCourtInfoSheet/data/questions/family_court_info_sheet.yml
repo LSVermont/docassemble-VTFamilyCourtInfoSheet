@@ -1,8 +1,7 @@
-#Need to do the review screen. Need to incorporate sharedYMLfile templates on download screen.
+#On this form, the plaintiff is set to being the "user."
 ---
 include:
   - docassemble.AssemblyLine:assembly_line.yml
-  - docassemble.ALAnyState:any_state.yml
   - docassemble.ALToolbox:phone-number-validation.yml
   - docassemble.VTSharedYMLFile:VTSharedYMLFile.yml
 ---
@@ -289,7 +288,7 @@ question: |
   Lawyer
 fields:
   - "Does ${ users[0].name } have a lawyer for this case?": users1_has_attorney
-    datatype: yesnoradio
+    datatype: yesnomaybe
   - "Lawyer's name": users1_attorneys_name
     maxlength: 20
     required: False
@@ -531,6 +530,8 @@ code: |
   [user.address.address for user in users.complete_elements()]
   addresses_to_search = [user.address for user in users.complete_elements()]
 ---
+##############REVIEW SCREEN####################
+---
 id: info sheet review screen
 event: review_b_info_sheet_family_court
 question: |
@@ -538,136 +539,177 @@ question: |
 subquestion: |
   ${ review_screen_instructions }
 review:
+
   - Edit: docket_number
     button: |
-      **Docket number**:
-      ${ docket_number }
+      Court docket number:
+      % if dont_know_docket_number:
+      **Unknown**
+      % else:
+      **${ docket_number }**
+      % endif
   - Edit: trial_court
     button: |
-      **Trial court**
-  
+      County where you will file this form:
       % if defined("trial_court.address.county"):
-      * address: ${ trial_court.address.block() }
+      **${ trial_court.address.county }**
       % endif
-  - Edit: users.revisit
-    button: |
-      **Users**
-
-      % for item in users:
-        * ${ item }
-      % endfor
-  - Edit: other_parties.revisit
-    button: |
-      **Other parties**
-
-      % for item in other_parties:
-        * ${ item }
-      % endfor
-  - Edit: users1_birth_month
-    button: |
-      **Month of your birth**:
-      ${ users1_birth_month }
-  - Edit: users1_birth_day
-    button: |
-      **Day**:
-      ${ users1_birth_day }
-  - Edit: users1_birth_year
-    button: |
-      **Year**:
-      ${ users1_birth_year }
-  - Edit: other_parties1_birth_month
-    button: |
-      **Month of defendant's birth**:
-      ${ other_parties1_birth_month }
-  - Edit: other_parties1_birth_day
-    button: |
-      **Day**:
-      ${ other_parties1_birth_day }
-  - Edit: other_parties1_birth_year
-    button: |
-      **Year**:
-      ${ other_parties1_birth_year }
-
-  - Edit: other_parties1_address_mailing
-    button: |
-      **Defendant's mailing address**:
-      ${ other_parties[0].mailing_address.address }
-  - Edit: users[0].daytime_phone_number
-    button: |
-      **Your daytime phone number**:
-      ${ users[0].daytime_phone_number }
-  - Edit: other_parties[0].daytime_phone_number
-    button: |
-      **Defendant's daytime phone number**:
-      ${ other_parties[0].daytime_phone_number }
-  - Edit: users[0].evening_phone_number
-    button: |
-      **Your evening phone number**:
-      ${ users[0].evening_phone_number }
-  - Edit: other_parties[0].evening_phone_number
-    button: |
-      **Defendant's evening phone number**:
-      ${ other_parties[0].evening_phone_number }
-  - Edit: other_parties1_attorneys_name
-    button: |
-      **Defendant's lawyer's name**:
-      ${ other_parties1_attorneys_name }
-  - Edit: other_parties1_attorneys_phone_number
-    button: |
-      **Defendant's lawyer's phone number**:
-      ${ other_parties1_attorneys_phone_number }
-  - Edit: users1_attorneys_name
-    button: |
-      **Your lawyer's name**:
-      ${ users1_attorneys_name }
-  - Edit: users1_attorneys_phone_number
-    button: |
-      **Your lawyer's phone number**:
-      ${ users1_attorneys_phone_number }
   - Edit: OCS_filing_form
     button: |
-      **Is Vermont Office of Child Support filing this form?**:
-      ${ word(yesno(OCS_filing_form)) }
+      Person filling out this form works for Vermont Office of Child Support?:
+      **${ word(yesno(OCS_filing_form)) }**
+  - note: | 
+      ##Information about the plaintiff##
+  - Edit: users.revisit
+    button: |
+      About the plaintiff (the person who started this case)
+
+      % for item in users:
+      
+        **${ item }**
+      
+        - Birthday: **${ format_date(item.birthdate, format='M/d/yyyy') }**
+        
+        - Address: **${ item.address.on_one_line() }**
+        
+      % if users1_mailing_address_different:
+        - Mailing: **${ item.mailing_address.on_one_line() }**
+      % endif
+
+      % endfor    
+  - Edit: 
+    - users[0].daytime_phone_number
+    button: |
+      % if users[0].daytime_phone_number != '':
+      - Plaintiff's daytime phone: **${ showifdef('users[0].daytime_phone_number') }**
+      % endif
+      
+      % if users[0].evening_phone_number != '':
+      - Evening phone: **${ showifdef('users[0].evening_phone_number') }**
+      % endif
+      
+      % if users[0].email != '':
+      - Email: **${ showifdef('users[0].email') }**
+      % endif
+  - Edit: users1_attorneys_name
+    button: |
+      % if users1_has_attorney:
+        % if users1_attorneys_name != '':
+        - Plaintiff's lawyer's name: **${ showifdef('users1_attorneys_name') }**
+        % else:
+        - Plaintiff's lawyer's name: **Unknown**
+        % endif
+        
+        % if users1_attorneys_phone_number != '':
+        - Lawyer's phone: **${ showifdef('users1_attorneys_phone_number') }**
+        % else:
+        - Lawyer's phone: **Unknown**
+        % endif
+      % endif
+      % if users1_has_attorney == False:
+        - Plaintiff has lawyer?: **No**
+      % endif
+      % if users1_has_attorney == None:
+        - Plaintiff has lawyer?: **Unknown**
+      % endif
   - Edit: users1_gets_public_assistance
     button: |
-      **Do you get public assistance?**:
-      ${ word(yesno(users1_gets_public_assistance)) }
-  - Edit: users1_gets_child_support
+      - Plaintiff gets public assistance?:
+      **${ word(yesno(users1_gets_public_assistance)) }**
+
+      - Plaintiff gets child support?:
+      **${ word(yesno(users1_gets_child_support)) }**     
+  - note: | 
+      ##Information about the defendant##      
+  - Edit: other_parties.revisit
     button: |
-      **Do you get child support?**:
-      ${ word(yesno(users1_gets_child_support)) }
+      About the other party / the defendant
+
+      % for item in other_parties:
+        **${ item }**
+      
+        - Birthday: **${ format_date(item.birthdate, format='M/d/yyyy') }**
+        
+        - Address: **${ item.address.on_one_line() }**
+        
+      % if users1_mailing_address_different:
+        - Mailing: **${ item.mailing_address.on_one_line() }**
+      % endif     
+      % endfor   
+
+  - Edit: other_parties[0].daytime_phone_number
+    button: |
+      % if other_parties[0].daytime_phone_number != '':
+      - Defendant's daytime phone: **${ showifdef('other_parties[0].daytime_phone_number') }**
+      % endif
+      
+      % if other_parties[0].evening_phone_number != '':
+      - Evening phone: **${ showifdef('other_parties[0].evening_phone_number') }**
+      % endif
+      
+      % if other_parties[0].email != '':
+      - Email: **${ showifdef('other_parties[0].email') }**
+      % endif
+  - Edit: other_parties1_attorneys_name
+    button: |
+      % if other_parties1_has_attorney:
+        % if other_parties1_attorneys_name != '':
+        - Defendant's lawyer's name: **${ showifdef('other_parties1_attorneys_name') }**
+        % else:
+        - Defendant's lawyer's name: **Unknown**
+        % endif
+        
+        % if other_parties1_attorneys_phone_number != '':
+        - Lawyer's phone: **${ showifdef('other_parties1_attorneys_phone_number') }**
+        % else:
+        - Lawyer's phone: **Unknown**
+        % endif
+      % endif
+      % if other_parties1_has_attorney == False:
+        - Defendant has lawyer?: **No**
+      % endif
+      % if other_parties1_has_attorney == None:
+        - Defendant has lawyer?: **Unknown**
+      % endif
   - Edit: other_parties1_gets_child_support
     button: |
-      **Does defendant get child support?**:
-      ${ word(yesno(other_parties1_gets_child_support)) }
+      - Defendant gets child support?:
+      **${ word(yesno(other_parties1_gets_child_support)) }**
+  - note: | 
+      ##Other proceedings##
   - Edit: other_family_juv_probate_proceedings
     button: |
-      **Are there other family court proceedings?**:
-      ${ word(yesno(other_family_juv_probate_proceedings)) }
-  - Edit: trial_court_county_other_filing1
-    button: |
-      **In this county**:
-      ${ trial_court_county_other_filing1 }
-  - Edit: trial_court_division_other_filing1
-    button: |
-      **In this court division**:
-      ${ trial_court_division_other_filing1 }
+      Other court proceedings?:
+      **${ word(yesno(other_family_juv_probate_proceedings)) }**
   - Edit: trial_court_state_other_filing1
     button: |
-      **In this state**:
-      ${ trial_court_state_other_filing1 }
-  - Edit: trial_court_division_other_filing2
-    button: |
-      **In this court division**:
-      ${ trial_court_division_other_filing2 }
-  - Edit: trial_court_county_other_filing2
-    button: |
-      **In this county**:
-      ${ trial_court_county_other_filing2 }
+      In this state:
+      **${ trial_court_state_other_filing1 }**
+
+      In this county:
+      % if trial_court_county_other_filing1 == 'Other':
+      **${ trial_court_other_county_other_filing1 }**
+      % else:
+      **${ trial_court_county_other_filing1 }**
+      % endif
+      
+      In this court division:
+      **${ trial_court_division_other_filing1 }**
   - Edit: trial_court_state_other_filing2
     button: |
-      **In this state**:
-      ${ trial_court_state_other_filing2 }
+      In this state:
+      **${ trial_court_state_other_filing2 }**
+
+      In this county:
+      % if trial_court_county_other_filing2 == 'Other':
+      **${ trial_court_other_county_other_filing2 }**
+      % else:
+      **${ trial_court_county_other_filing2 }**
+      % endif
+
+      In this court division:
+      **${ trial_court_division_other_filing2 }**
+
   - note: |
       ${ review_screen_select_resume_will_take_moment }
 ---
@@ -688,13 +730,13 @@ columns:
       row_item.birthdate if defined("row_item.birthdate") else ""
   - Address: |
       row_item.address.block() if defined("row_item.address.state") else ""
-  - Email: |
-      row_item.email if defined("row_item.email") else ""
+  - Mailing address: |
+      row_item.mailing_address.address if defined("row_item.mailing_address.address") else ""
 edit:
   - name.first
   - birthdate
   - address.state
-  - email
+  - mailing_address.address
 confirm: True
 
 ---
@@ -715,13 +757,11 @@ columns:
       row_item.birthdate if defined("row_item.birthdate") else ""
   - Address: |
       row_item.address.block() if defined("row_item.address.state") else ""
-  - Email: |
-      row_item.email if defined("row_item.email") else ""
 edit:
   - name.first
   - birthdate
   - address.state
-  - email
+  - mailing_address.address
 confirm: True
 
 ---
@@ -829,6 +869,3 @@ attachment:
           ${ trial_court_county_other_filing2 }
           % endif
       - "trial_court_state_other_filing2": ${ trial_court_state_other_filing2 }
-
-
-
