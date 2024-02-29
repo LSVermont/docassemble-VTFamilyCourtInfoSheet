@@ -1,4 +1,4 @@
-#On this form, the plaintiff is set to being the "user."
+#FYI: On this form, the plaintiff is set to being the "user."
 ---
 include:
   - docassemble.AssemblyLine:assembly_line.yml
@@ -27,9 +27,6 @@ metadata:
   #typical_role: "plaintiff"
   al_weaver_version: "1.10.2"
   generated_on: "2023-11-11"
----
-objects:
-  - all_courts: ALCourtLoader.using(file_name='courts_list.xlsx')
 ---
 code: |
   trial_court = all_courts.as_court('trial_court', trial_court_index)
@@ -65,38 +62,42 @@ comment: |
   Controls order and branching logic for questions specific to this form
 id: interview_order_b_info_sheet_family_court
 code: |
-  # Set the allowed courts for this interview
-  allowed_courts = []
-  nav.set_section("review_b_info_sheet_family_court")
+  nav.set_section("intro")
+  set_progress(5)
   how_to_edit_answers
   docket_number
+  set_progress(10)
   trial_court.address.address
   OCS_filing_form
+  set_progress(25)
   #users_role
-  set_progress(12)
-  set_parts(subtitle=str(users))
   #user_role = "plaintiff"
   #user_ask_role
   #user_is_plaintiff
+  nav.set_section("about")
   users.gather()
   users1_mailing_address_different
-  set_progress(24)
+  set_progress(50)
   users[0].email
   users[0].birthdate
   users1_gets_public_assistance
   set_progress(36)
   users1_has_attorney
+  nav.set_section('defendant')
   other_parties.gather()
   other_parties[0].name.first
   other_parties1_mailing_address_different
   set_progress(48)
   other_parties[0].daytime_phone_number
-  set_progress(60)
   other_parties[0].birthdate
+  set_progress(60)
   other_parties1_gets_child_support
   other_parties1_has_attorney
-  set_progress(72)
+  set_progress(80)
   other_family_juv_probate_proceedings
+  trial_court.address.county
+  nav.set_section('review')
+  b_info_sheet_family_court_preview_question
   interview_order_b_info_sheet_family_court = True
 ---
 ###################### Main order ######################
@@ -107,7 +108,7 @@ mandatory: True
 code: |
   al_intro_screen
   interview_order_b_info_sheet_family_court
-  #signature_date
+  #no signature needed
   # Store anonymous data for analytics / statistics
   store_variables_snapshot(
       persistent=True,
@@ -116,7 +117,15 @@ code: |
           "reached_interview_end": True,
       },
   )
+  nav.set_section('get_docs')
   b_info_sheet_family_court_download
+---
+sections:
+  - intro: Introduction
+  - about: About you
+  - defendant: About the defendant
+  - review: Edit your answers
+  - get_docs: Get your documents
 ---
 id: basic questions intro screen
 decoration: form-lineal
@@ -164,22 +173,25 @@ continue button field: how_to_edit_answers
 ---
 id: choose a court
 question: |
-  Choose a Family Court
+  Choose a court
 fields:
   - note: |
-      Choose the county where you will file this form. 
+      Choose the county where you will file this form.
+      ${ collapse_template(family_court_which_county) }
       
-      <h2 class="h4">What county should I choose?</h2>
-
-      * If you already have a court case in progress, select the county that is listed on your court papers.
-      * If you are starting a new case, or if you are looking to change counties, file in the county where you or the other party live. 
-      * If you have children, you would likely file in the county where your children live most of the time. 
-      * If you do not have children, you could file in the county your marital home resides in.
-      * If you aren’t sure where to file, check for advice on [VTLawHelp.org](https://vtlawhelp.org/family), call your [local courthouse](https://www.vermontjudiciary.org/court-locations), contact the [Vermont Judiciary Access Resource Center](https://www.vermontjudiciary.org/self-help/ARC), or contact [Legal Services Vermont](https://vtlawhelp.org/how-we-can-help).
-      
-      Not sure what county? [Check this list of cities and towns to find the county.](https://en.m.wikipedia.org/wiki/List_of_municipalities_in_Vermont#Cities)
+      Not sure what county you are in? [Check this list of cities and towns to find the county.](https://en.m.wikipedia.org/wiki/List_of_municipalities_in_Vermont#Cities)
   - County: trial_court_index
     code: all_courts._load_courts()['address_county'].items()
+---
+template: family_court_which_county
+subject: |
+  Not sure which county to pick?
+content: |
+  * If you already have a court case in progress, select the county that is listed on your court papers.
+  * If you are starting a new case, or if you are looking to change counties, file in the county where you or the other party live. 
+  * If you have children, you would likely file in the county where your children live most of the time. 
+  * If you do not have children, you could file in the county your marital home resides in.
+  * If you aren’t sure where to file, check for advice on [VTLawHelp.org](https://vtlawhelp.org/family), call your [local courthouse](https://www.vermontjudiciary.org/court-locations), contact the [Vermont Judiciary Access Resource Center](https://www.vermontjudiciary.org/self-help/ARC), or contact [Legal Services Vermont](https://vtlawhelp.org/how-we-can-help).  
 ---
 #id: user ask role
 #question: |
