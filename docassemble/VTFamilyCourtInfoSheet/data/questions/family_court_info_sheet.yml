@@ -1,4 +1,6 @@
-#FYI: On this form, the plaintiff is set to being the "user."
+comment: |
+  FYI: On this form, the plaintiff is set to being users[0].
+  Need to use depends on or on change for editing the county court on the review screen and seeing the change on the PDF
 ---
 include:
   - docassemble.AssemblyLine:assembly_line.yml
@@ -69,7 +71,7 @@ code: |
   set_progress(10)
   trial_court.address.address
   OCS_filing_form
-  set_progress(25)
+  set_progress(20)
   #users_role
   #user_role = "plaintiff"
   #user_ask_role
@@ -77,24 +79,27 @@ code: |
   nav.set_section("about")
   users.gather()
   users1_mailing_address_different
-  set_progress(50)
+  set_progress(30)
   users[0].email
   users[0].birthdate
+  set_progress(40)
   users1_gets_public_assistance
-  set_progress(36)
   users1_has_attorney
   nav.set_section('defendant')
+  set_progress(50)
   other_parties.gather()
   other_parties[0].name.first
   other_parties1_mailing_address_different
-  set_progress(48)
+  set_progress(60)
   other_parties[0].daytime_phone_number
   other_parties[0].birthdate
-  set_progress(60)
+  set_progress(70)
   other_parties1_gets_child_support
   other_parties1_has_attorney
   set_progress(80)
+  nav.set_section('other_proceedings')
   other_family_juv_probate_proceedings
+  set_progress(90)
   trial_court.address.county
   nav.set_section('review')
   b_info_sheet_family_court_preview_question
@@ -122,9 +127,10 @@ code: |
 ---
 sections:
   - intro: Introduction
-  - about: About you
+  - about: About the plaintiff
   - defendant: About the defendant
   - review: Edit your answers
+  - other_proceedings: Other court actions
   - get_docs: Get your documents
 ---
 id: basic questions intro screen
@@ -324,8 +330,14 @@ fields:
     
   - "Gets child support": users1_gets_child_support
     datatype: yesno
-    
+
   - note: |
+      ${ collapse_template(office_of_child_support_contact) }
+---
+template: office_of_child_support_contact
+subject: |
+  Need help with child support?
+content: |
       The Office of Child Support can help people with child support questions and problems. Call them at 1-800-786-3214 or TTY access number 1-800-253-0191.
 
 ---
@@ -352,6 +364,7 @@ fields:
     required: False
 
 ---
+id: other parties address
 sets:
   - other_parties[0].address.address
   - other_parties[0].address.city
@@ -560,12 +573,9 @@ review:
       % else:
       **${ docket_number }**
       % endif
-  - Edit: trial_court
+  - Edit: trial_court_index
     button: |
-      County where you will file this form:
-      % if defined("trial_court.address.county"):
-      **${ trial_court.address.county }**
-      % endif
+      Filing this form in the Family Court of: **${ trial_court.address.county } County**
   - Edit: OCS_filing_form
     button: |
       Person filling out this form works for Vermont Office of Child Support?:
@@ -699,31 +709,31 @@ review:
       **${ word(yesno(other_family_juv_probate_proceedings)) }**
   - Edit: trial_court_state_other_filing1
     button: |
-      In this state:
+      * In this state:
       **${ trial_court_state_other_filing1 }**
 
-      In this county:
+      * In this county:
       % if trial_court_county_other_filing1 == 'Other':
       **${ trial_court_other_county_other_filing1 }**
       % else:
       **${ trial_court_county_other_filing1 }**
       % endif
       
-      In this court division:
+      * In this court division:
       **${ trial_court_division_other_filing1 }**
   - Edit: trial_court_state_other_filing2
     button: |
-      In this state:
+      * In this state:
       **${ trial_court_state_other_filing2 }**
 
-      In this county:
+      * In this county:
       % if trial_court_county_other_filing2 == 'Other':
       **${ trial_court_other_county_other_filing2 }**
       % else:
       **${ trial_court_county_other_filing2 }**
       % endif
 
-      In this court division:
+      * In this court division:
       **${ trial_court_division_other_filing2 }**
 
   - note: |
@@ -731,7 +741,7 @@ review:
 ---
 continue button field: users.revisit
 question: |
-  Edit users
+  Edit plaintiff
 subquestion: |
   ${ users.table }
 
@@ -758,7 +768,7 @@ confirm: True
 ---
 continue button field: other_parties.revisit
 question: |
-  Edit other_parties
+  Edit defendant
 subquestion: |
   ${ other_parties.table }
 
@@ -773,6 +783,8 @@ columns:
       row_item.birthdate if defined("row_item.birthdate") else ""
   - Address: |
       row_item.address.block() if defined("row_item.address.state") else ""
+  - Mailing address: |
+      row_item.mailing_address.address if defined("row_item.mailing_address.address") else ""
 edit:
   - name.first
   - birthdate
