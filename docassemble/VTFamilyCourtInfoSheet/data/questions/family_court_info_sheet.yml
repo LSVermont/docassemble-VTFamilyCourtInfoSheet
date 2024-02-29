@@ -1,6 +1,5 @@
 comment: |
-  FYI: On this form, the plaintiff is set to being users[0].
-  Need to use depends on or on change for editing the county court on the review screen and seeing the change on the PDF
+  FYI: On this form, the plaintiff is set to being users[0]
 ---
 include:
   - docassemble.AssemblyLine:assembly_line.yml
