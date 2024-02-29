@@ -129,8 +129,8 @@ sections:
   - intro: Introduction
   - about: About the plaintiff
   - defendant: About the defendant
-  - review: Edit your answers
   - other_proceedings: Other court actions
+  - review: Edit your answers
   - get_docs: Get your documents
 ---
 id: basic questions intro screen
