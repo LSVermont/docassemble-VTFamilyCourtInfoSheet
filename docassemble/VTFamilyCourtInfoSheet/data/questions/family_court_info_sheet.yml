@@ -573,9 +573,14 @@ review:
       % else:
       **${ docket_number }**
       % endif
-  - Edit: trial_court_index
+  - Edit: 
+    - trial_court_index
+    - recompute:
+      - trial_court
     button: |
+      % if defined("trial_court"):
       Filing this form in the Family Court of: **${ trial_court.address.county } County**
+      % endif
   - Edit: OCS_filing_form
     button: |
       Person filling out this form works for Vermont Office of Child Support?:
