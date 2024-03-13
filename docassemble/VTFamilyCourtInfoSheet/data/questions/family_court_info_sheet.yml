@@ -72,10 +72,8 @@ code: |
   trial_court.address.address
   OCS_filing_form
   set_progress(20)
-  #users_role
-  #user_role = "plaintiff"
-  #user_ask_role
-  #user_is_plaintiff
+
+  users1_role
   nav.set_section("about")
   users.gather()
   users[0].address.address
@@ -199,29 +197,17 @@ content: |
   * If you do not have children, you could file in the county your marital home resides in.
   * If you aren’t sure where to file, check for advice on [VTLawHelp.org](https://vtlawhelp.org/family), call your [local courthouse](https://www.vermontjudiciary.org/court-locations), contact the [Vermont Judiciary Access Resource Center](https://www.vermontjudiciary.org/self-help/ARC), or contact [Legal Services Vermont](https://vtlawhelp.org/how-we-can-help).  
 ---
-#id: user ask role
-#question: |
-#  What is your role in this case?
-#subquestion: | 
-#  Are you listed as the plaintiff or the defendant? Check your related court forms to find out.
-#fields:
-#  - I am the plaintiff: users_role_is_plaintiff
-#    datatype: yesno
-#  - I am the defendant: users_role_is_defendant
-#    datatype: yesno
-#continue button field: users_role
----
-#id: user is plaintiff
-#question: |
-#  Gathering information
-#subquestion: | 
-#  We will first collect information about the person who is listed as the **plaintiff** in the family court case. We will call that person "you."
-#  
-#  If you are filling out this form and you are listed as the **defendant** in the court case, please enter the plaintiff's information first.
-#  
-#  Look at your other court papers to see if you are listed as the plaintiff or the defendant for this court case.
-#  
-#continue button field: user_is_plaintiff    
+id: users role
+question: |
+  Your role
+subquestion: |
+  Look at your other court papers to see if you are listed as the plaintiff or the defendant for this court case.
+fields:
+  - "What is your role in this case?": users1_role
+    input type: radio
+    choices:
+    - You are the 'Plaintiff,' which means you started the case: role_plaintiff
+    - You are the 'Defendant,' which means you did not start the case but are responding to it: role_defendant   
 ---
 id: plaintiff name
 sets:
