@@ -1,6 +1,6 @@
 comment: |
   This interview will be part of the Divorce package. It should also be its own stand-alone interview.
-  FYI: On this form, the plaintiff is set to being users[0]
+
 ---
 include:
   - docassemble.AssemblyLine:assembly_line.yml
@@ -53,7 +53,7 @@ code: |
 ---
 objects:
   - users: ALPeopleList.using(ask_number=True,target_number=1)
-  - other_parties: ALPeopleList.using(ask_number=True,target_number=1)
+  - other_parties: ALPeopleList.using(ask_number=True)
   - children: ALPeopleList.using(ask_number=True,complete_attribute="complete")
 ---
 sections:
@@ -83,7 +83,7 @@ code: |
   set_progress(40)
   users1_gets_public_assistance
   users1_has_attorney
-  nav.set_section('defendant')
+  nav.set_section('other_party')
   set_progress(50)
   other_parties.gather()
   other_parties[0].name.first
@@ -125,8 +125,8 @@ code: |
 ---
 sections:
   - intro: Introduction
-  - about: About the plaintiff
-  - defendant: About the defendant
+  - about: About you
+  - other_party: About the other party
   - other_proceedings: Other court actions
   - review: Edit your answers
   - get_docs: Get your documents
@@ -209,21 +209,19 @@ fields:
     - You are the 'Plaintiff,' which means you started the case: role_plaintiff
     - You are the 'Defendant,' which means you did not start the case but are responding to it: role_defendant   
 ---
-id: plaintiff name
+id: users name
 sets:
     - users[0].name.first
     - users[0].name.last
     - users[0].name.middle
     - users[0].name.suffix
 question:  |
-  What is the name of the plaintiff in this case?
-subquestion: | 
-  The plaintiff is usually the person who started the case. Look at your other court documents to see who is listed as the plaintiff.
+  What is your name?
 fields:
   - code: |
       users[0].name_fields()
 ---
-id: Gather plaintiff street address
+id: Gather users street address
 sets:
   - users[0].address.address
   - users[0].address.city
@@ -232,13 +230,13 @@ sets:
   - users[0].address.state
   - users[0].address.country
 question: |
-  What is ${ users[0].name }'s address?
+  What is your address?
 subquestion: | 
   Note: If needed, you can [talk with an advocate](https://vtnetwork.org/) about how to get a safe mailing address. 
 fields:
   - code: |
       users[0].address_fields(default_state=AL_DEFAULT_STATE)
-  - ${ users[0].name } has a mailing address that is different from their street address: users1_mailing_address_different
+  - You have a mailing address that is different from your street address: users1_mailing_address_different
     datatype: yesno
   - Mailing address: users[0].mailing_address.address
     address autocomplete: True
@@ -259,7 +257,7 @@ fields:
 ---
 id: user birthdate question
 question: |
-  When was ${ users[0].name } born?
+  When were you born?
 fields:
   - Birthdate: users[0].birthdate
     required: True
@@ -268,9 +266,9 @@ fields:
 ---
 id: Gather users contact information
 question: |
-  What is ${ users[0].name }'s contact information?
+  What is your contact information?
 subquestion: |
-  Include **at least one way** to reach them. 
+  Include **at least one way** to reach you. 
 fields:  
   - Daytime phone number: users[0].daytime_phone_number
     datatype: al_international_phone
@@ -291,7 +289,7 @@ id: users lawyer
 question: |
   Lawyer
 fields:
-  - "Does ${ users[0].name } have a lawyer for this case?": users1_has_attorney
+  - "Do you have a lawyer for this case?": users1_has_attorney
     datatype: yesnomaybe
   - "Lawyer's name": users1_attorneys_name
     maxlength: 20
@@ -304,7 +302,7 @@ fields:
 ---
 id: users benefits or child support
 question: |
-  Does ${ users[0].name } get any benefits or child support?
+  Do you get any benefits or child support?
 fields:
   - note: |      
       Public assistance can include help from Vermont's Department of Economic Services such as Reach-Up, Dr. Dynasaur, Medicaid, or Post Secondary Education Stipend (PSE).
@@ -327,20 +325,42 @@ content: |
       The Office of Child Support can help people with child support questions and problems. Call them at 1-800-786-3214 or TTY access number 1-800-253-0191.
 
 ---
-id: Gather defendant name
-sets:
-  - other_parties[0].name.first
-  - other_parties[0].name.last
+---
+id: how many other parties
 question: |
-  Name of the defendant
-subquestion: |
-  Enter the name of the person listed as the defendant.
+  The other party
+fields:  
+  - note: |
+      % if defined("users1_role") and users1_role == "role_plaintiff":
+      How many defendants are in this case? 
+      % endif
+      % if defined("users1_role") and users1_role == "role_defendant":
+      How many plaintiffs are in this case?
+      % endif
+    
+  - "How many?": other_parties.target_number
+    datatype: integer    
+---  
+id: gather other parties info
+sets:
+  - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].address.address  
+  - other_parties[i].served
+question: |
+  % if other_parties.target_number == 1:
+  About the other party
+  % elif other_parties.target_number > 1:
+  About the **${ ordinal(i) }** other party
+  % else:
+  About the other party
+  % endif
 fields:
-  - First name: other_parties[0].name.first
-  - Middle name: other_parties[0].name.middle
+  - First Name: other_parties[i].name.first
+  - Middle Name: other_parties[i].name.middle
     required: False
-  - Last name: other_parties[0].name.last
-  - Suffix: other_parties[0].name.suffix
+  - Last Name: other_parties[i].name.last
+  - Suffix: other_parties[i].name.suffix
     choices: 
       - Jr
       - Sr
