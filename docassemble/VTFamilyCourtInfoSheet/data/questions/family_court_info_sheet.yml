@@ -1,5 +1,5 @@
 comment: |
-  This interview will be part of the Divorce package. It is also its own stand-alone interview.
+  This interview will be part of the Divorce package. It is also its own stand-alone interview. The user can say they are the plaintiff or the defendant.
   Need to finish the attachment section for assistance and child support
   On the PDF, why does the first date of birth come out wrong? But then you click in the field on the pdf and the correct date shows up?
 ---
@@ -324,38 +324,13 @@ subject: |
   Need help with child support?
 content: |
       The Office of Child Support can help people with child support questions and problems. Call them at 1-800-786-3214 or TTY access number 1-800-253-0191.
-
----
----
-id: how many other parties
-question: |
-  The other party
-fields:  
-  - note: |
-      % if defined("users1_role") and users1_role == "role_plaintiff":
-      How many defendants are in this case? 
-      % endif
-      % if defined("users1_role") and users1_role == "role_defendant":
-      How many plaintiffs are in this case?
-      % endif
-    
-  - "How many?": other_parties.target_number
-    datatype: integer    
 ---  
 id: gather other parties info
 sets:
   - other_parties[i].name.first
   - other_parties[i].name.last
-  - other_parties[i].address.address  
-  - other_parties[i].served
 question: |
-  % if other_parties.target_number == 1:
   About the other party
-  % elif other_parties.target_number > 1:
-  About the **${ ordinal(i) }** other party
-  % else:
-  About the other party
-  % endif
 fields:
   - First Name: other_parties[i].name.first
   - Middle Name: other_parties[i].name.middle
@@ -369,7 +344,14 @@ fields:
       - II
       - III
     required: False
-
+---
+id: other parties birthdate question
+question: |
+  When was ${ other_parties[0] } born?
+fields:
+  - Birthdate: other_parties[0].birthdate
+    required: True
+    datatype: BirthDate
 ---
 id: other parties address
 sets:
@@ -621,7 +603,6 @@ review:
       ##Information about you##
   - Edit: users.revisit
     button: |
-      About you
 
       % for item in users:
       
@@ -690,7 +671,6 @@ review:
       ##Information about the other party##      
   - Edit: other_parties.revisit
     button: |
-      About the other party
 
       % for item in other_parties:
         **${ item }**
@@ -896,28 +876,28 @@ attachment:
           ${ users[0] }
           % endif
           % if defined("users1_role") and users1_role == "role_defendant":
-          ${ other_parties.short_list(2) }
+          ${ other_parties[0] }
           % endif
       - "other_parties1_name": |
           % if defined("users1_role") and users1_role == "role_defendant":
           ${ users[0] }
           % endif
           % if defined("users1_role") and users1_role == "role_plaintiff":
-          ${ other_parties.short_list(2) }
+          ${ other_parties[0] }
           % endif
       - "users1_birthdate": |
           % if defined("users1_role") and users1_role == "role_plaintiff":
-          ${ format_date(users[0].birthdate, format='M/d/yyyy') }
+            ${ format_date(users[0].birthdate, format='M/d/yyyy') }
           % endif
           % if defined("users1_role") and users1_role == "role_defendant":
-          ${ format_date(other_parties[0].birthdate, format='M/d/yyyy') }
+            ${ format_date(other_parties[0].birthdate, format='M/d/yyyy') }
           % endif      
       
       - "other_parties1_birthdate": |
           % if defined("users1_role") and users1_role == "role_defendant":
-          ${ format_date(users[0].birthdate, format='M/d/yyyy') }
+            ${ format_date(users[0].birthdate, format='M/d/yyyy') }
           % elif defined("users1_role") and users1_role == "role_plaintiff":
-          ${ format_date(other_parties[0].birthdate, format='M/d/yyyy') }
+            ${ format_date(other_parties[0].birthdate, format='M/d/yyyy') }
           % endif    
 
       - "users1_address_address": |
