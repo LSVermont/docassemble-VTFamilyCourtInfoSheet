@@ -54,7 +54,7 @@ setup(name='docassemble.VTFamilyCourtInfoSheet',
       url='https://vtlawhelp.org/vtcourtforms',
       packages=find_packages(),
       namespace_packages=['docassemble'],
-      install_requires=['docassemble.ALToolbox>=0.10.1', 'docassemble.AssemblyLine>=2.27.1', 'docassemble.VTSharedYMLFile'],
+      install_requires=['docassemble.ALToolbox>=0.10.1', 'docassemble.AssemblyLine>=2.27.2', 'docassemble.VTSharedYMLFile'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/VTFamilyCourtInfoSheet/', package='docassemble.VTFamilyCourtInfoSheet'),
      )
