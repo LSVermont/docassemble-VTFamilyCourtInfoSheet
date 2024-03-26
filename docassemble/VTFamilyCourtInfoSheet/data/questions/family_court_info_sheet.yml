@@ -233,7 +233,7 @@ sets:
 question: |
   What is your address?
 subquestion: | 
-  Note: If needed, you can [talk with an advocate](https://vtnetwork.org/) about how to get a safe mailing address. 
+  Note: If you are experiencing abuse, stalking or domestic violence, you can get a safer mailing address. To get one, [talk with an advocate](https://www.vtnetwork.org/get-help/).
 fields:
   - code: |
       users[0].address_fields(default_state=AL_DEFAULT_STATE)
