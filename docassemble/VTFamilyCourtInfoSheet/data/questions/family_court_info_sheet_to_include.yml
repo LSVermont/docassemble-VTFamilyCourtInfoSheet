@@ -24,7 +24,7 @@ code: |
   users[0].birthdate
   set_progress(40)
   users1_gets_public_assistance
-  users1_has_attorney
+  user_has_attorney
   nav.set_section('defendant')
   set_progress(50)
   other_parties.gather()
@@ -41,8 +41,6 @@ code: |
   other_family_juv_probate_proceedings
   set_progress(90)
   trial_court.address.county
-  nav.set_section('review')
-  b_info_sheet_family_court_preview_question
   interview_order_b_info_sheet_family_court = True
 ---
 id: choose a court
@@ -66,30 +64,6 @@ content: |
   * If you have children, you would likely file in the county where your children live most of the time. 
   * If you do not have children, you could file in the county your marital home resides in.
   * If you aren’t sure where to file, check for advice on [VTLawHelp.org](https://vtlawhelp.org/family), call your [local courthouse](https://www.vermontjudiciary.org/court-locations), contact the [Vermont Judiciary Access Resource Center](https://www.vermontjudiciary.org/self-help/ARC), or contact [Legal Services Vermont](https://vtlawhelp.org/how-we-can-help).  
----
-#id: user ask role
-#question: |
-#  What is your role in this case?
-#subquestion: | 
-#  Are you listed as the plaintiff or the defendant? Check your related court forms to find out.
-#fields:
-#  - I am the plaintiff: users_role_is_plaintiff
-#    datatype: yesno
-#  - I am the defendant: users_role_is_defendant
-#    datatype: yesno
-#continue button field: users_role
----
-#id: user is plaintiff
-#question: |
-#  Gathering information
-#subquestion: | 
-#  We will first collect information about the person who is listed as the **plaintiff** in the family court case. We will call that person "you."
-#  
-#  If you are filling out this form and you are listed as the **defendant** in the court case, please enter the plaintiff's information first.
-#  
-#  Look at your other court papers to see if you are listed as the plaintiff or the defendant for this court case.
-#  
-#continue button field: user_is_plaintiff    
 ---
 id: plaintiff name
 sets:
@@ -173,16 +147,16 @@ id: users lawyer
 question: |
   Lawyer
 fields:
-  - "Does ${ users[0].name } have a lawyer for this case?": users1_has_attorney
+  - "Does ${ users[0].name } have a lawyer for this case?": user_has_attorney
     datatype: yesnomaybe
   - "Lawyer's name": users1_attorneys_name
     maxlength: 20
     required: False
-    show if: users1_has_attorney
+    show if: user_has_attorney
   - "Lawyer's phone number": users1_attorneys_phone_number
     maxlength: 21
     required: False
-    show if: users1_has_attorney
+    show if: user_has_attorney
 ---
 id: users benefits or child support
 question: |
@@ -491,7 +465,7 @@ review:
       % endif
   - Edit: users1_attorneys_name
     button: |
-      % if users1_has_attorney:
+      % if user_has_attorney:
         % if users1_attorneys_name != '':
         - Plaintiff's lawyer's name: **${ showifdef('users1_attorneys_name') }**
         % else:
@@ -504,10 +478,10 @@ review:
         - Lawyer's phone: **Unknown**
         % endif
       % endif
-      % if users1_has_attorney == False:
+      % if user_has_attorney == False:
         - Plaintiff has lawyer?: **No**
       % endif
-      % if users1_has_attorney == None:
+      % if user_has_attorney == None:
         - Plaintiff has lawyer?: **Unknown**
       % endif
   - Edit: users1_gets_public_assistance

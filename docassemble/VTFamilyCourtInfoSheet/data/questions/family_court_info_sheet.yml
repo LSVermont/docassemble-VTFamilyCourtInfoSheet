@@ -68,6 +68,8 @@ mandatory: True
 code: |
   al_intro_screen
   interview_order_b_info_sheet_family_court
+  nav.set_section('review')
+  b_info_sheet_family_court_preview_question
   #no signature needed
   # Store anonymous data for analytics / statistics
   store_variables_snapshot(
