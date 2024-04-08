@@ -45,11 +45,11 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
 
 setup(name='docassemble.VTFamilyCourtInfoSheet',
       version='1.0',
-      description=('Family court information sheet'),
+      description=('Family court information sheet for Vermont'),
       long_description='# docassemble.BInfoSheetFamilyCourt\r\n\r\nFamily court information sheet\r\n\r\n## Author\r\n\r\nVTCourtForms by Legal Services Vermont\r\n\r\n',
       long_description_content_type='text/markdown',
       author='VTCourtForms by Legal Services Vermont',
-      author_email='ksurette@lawlinevt.org',
+      author_email='ksurette@legalservicesvt.org',
       license='The MIT License',
       url='https://vtlawhelp.org/vtcourtforms',
       packages=find_packages(),
