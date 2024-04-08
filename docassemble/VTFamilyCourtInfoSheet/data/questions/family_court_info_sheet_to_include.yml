@@ -1,4 +1,13 @@
 ---
+id: how_to_edit_answers
+question: |
+  How to edit your answers
+subquestion: |
+  ${ intro_how_to_edit_answers }
+  
+  ${ collapse_template(asterisk) }
+continue button field: how_to_edit_answers
+---
 #################### Interview order #####################
 comment: |
   Controls order and branching logic for questions specific to this form
@@ -35,7 +44,7 @@ code: |
   other_parties[0].birthdate
   set_progress(70)
   other_parties1_gets_child_support
-  other_parties1_has_attorney
+  other_parties_has_attorney
   set_progress(80)
   nav.set_section('other_proceedings')
   other_family_juv_probate_proceedings
@@ -295,16 +304,16 @@ id: defendants lawyer
 question: |
   ${ other_parties[0].name }'s lawyer
 fields:
-  - "Does ${ other_parties[0].name } have a lawyer for this case?": other_parties1_has_attorney
+  - "Does ${ other_parties[0].name } have a lawyer for this case?": other_parties_has_attorney
     datatype: yesnomaybe
   - "Lawyer's name": other_parties1_attorneys_name
     maxlength: 20
     required: False
-    show if: other_parties1_has_attorney
+    show if: other_parties_has_attorney
   - "Lawyer's phone number": other_parties1_attorneys_phone_number
     maxlength: 21
     required: False
-    show if: other_parties1_has_attorney
+    show if: other_parties_has_attorney
 ---
 id: defendant gets child support
 question: |
@@ -524,7 +533,7 @@ review:
       % endif
   - Edit: other_parties1_attorneys_name
     button: |
-      % if other_parties1_has_attorney:
+      % if other_parties_has_attorney:
         % if other_parties1_attorneys_name != '':
         - Defendant's lawyer's name: **${ showifdef('other_parties1_attorneys_name') }**
         % else:
@@ -537,10 +546,10 @@ review:
         - Lawyer's phone: **Unknown**
         % endif
       % endif
-      % if other_parties1_has_attorney == False:
+      % if other_parties_has_attorney == False:
         - Defendant has lawyer?: **No**
       % endif
-      % if other_parties1_has_attorney == None:
+      % if other_parties_has_attorney == None:
         - Defendant has lawyer?: **Unknown**
       % endif
   - Edit: other_parties1_gets_child_support
@@ -687,10 +696,22 @@ attachment:
       - "other_parties1_evening_phone_number": ${ other_parties[0].evening_phone_number }
       - "users1_email": ${ users[0].email }
       - "other_parties1_email": ${ other_parties[0].email }
-      - "other_parties1_attorneys_name": ${ other_parties1_attorneys_name }
-      - "other_parties1_attorneys_phone_number": ${ other_parties1_attorneys_phone_number }
-      - "users1_attorneys_name": ${ users1_attorneys_name }
-      - "users1_attorneys_phone_number": ${ users1_attorneys_phone_number }
+      - "other_parties1_attorneys_name": |
+            % if other_parties_has_attorney:
+            ${ other_parties1_attorneys_name }
+            % endif
+      - "other_parties1_attorneys_phone_number": |
+            % if other_parties_has_attorney:
+            ${ other_parties1_attorneys_phone_number }
+            % endif
+      - "users1_attorneys_name": |
+            % if user_has_attorney:
+            ${ users1_attorneys_name }
+            % endif
+      - "users1_attorneys_phone_number": |
+            % if user_has_attorney:
+            ${ users1_attorneys_phone_number }
+            % endif
       - "OCS_filing_form_yes": ${ OCS_filing_form }
       - "users1_gets_public_assistance": ${ users1_gets_public_assistance }
       - "users1_gets_child_support": ${ users1_gets_child_support }

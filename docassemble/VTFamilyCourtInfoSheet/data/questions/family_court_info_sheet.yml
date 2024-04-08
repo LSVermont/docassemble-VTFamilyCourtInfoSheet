@@ -124,16 +124,7 @@ fields:
       minlength: |
         You cannot continue unless you agree to the terms of use.        
 continue button field: al_intro_screen
----
-id: how_to_edit_answers
-question: |
-  How to edit your answers
-subquestion: |
-  ${ intro_how_to_edit_answers }
-  
-  ${ collapse_template(asterisk) }
-continue button field: how_to_edit_answers
----
+s---
 id: preview family_court_info_sheet
 question: |
   Preview your form before you sign it
