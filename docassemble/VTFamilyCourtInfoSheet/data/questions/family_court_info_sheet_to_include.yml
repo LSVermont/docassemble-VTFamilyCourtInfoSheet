@@ -393,8 +393,7 @@ fields:
       - Probate court
       - Juvenile court
     show if: other_family_juv_probate_proceedings2
-  - note: |
-      ${ after_last_question_we_will_generate_your_forms }
+
 ---
 id: info sheet review screen
 event: review_b_info_sheet_family_court
