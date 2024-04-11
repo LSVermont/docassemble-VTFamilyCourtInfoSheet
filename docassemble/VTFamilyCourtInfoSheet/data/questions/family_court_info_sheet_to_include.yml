@@ -170,7 +170,7 @@ fields:
   - "Gets public assistance": users1_gets_public_assistance
     datatype: yesno
     
-  - "Gets child support": users1_gets_child_support
+  - "Gets child support from any relationship": users1_gets_child_support
     datatype: yesno
 
   - note: |
@@ -304,7 +304,7 @@ id: defendant gets child support
 question: |
   Child support
 fields:
-  - "Does ${ other_parties[0].name } get child support?": other_parties1_gets_child_support
+  - "Does ${ other_parties[0].name } get child support from any relationship?": other_parties1_gets_child_support
     datatype: yesnomaybe
 ---
 id: office of child support
