@@ -666,8 +666,14 @@ attachment:
       - "other_parties1_birthdate": ${ format_date(other_parties[0].birthdate, format='M/d/yyyy') }
       - "users1_address_address": ${ users[0].address.line_one() }
       - "other_parties1_address_address": ${ other_parties[0].address.line_one() }
-      - "users1_address_mailing": ${ users[0].mailing_address.address }
-      - "other_parties1_address_mailing": ${ other_parties[0].mailing_address.address }
+      - "users1_address_mailing": |
+          % if users1_mailing_address_different:
+          ${ users[0].mailing_address.on_one_line()  }
+          % endif
+      - "other_parties1_address_mailing": |
+          % if other_parties1_mailing_address_different:
+          ${ other_parties[0].mailing_address.on_one_line() }
+          % endif
       - "other_parties1_address_zip": ${ other_parties[0].address.zip }
       - "users1_address_city": ${ users[0].address.city }
       - "other_parties1_address_city": ${ other_parties[0].address.city }
