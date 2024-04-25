@@ -661,7 +661,7 @@ attachment:
       - "docket_number": ${ docket_number }
       - "trial_court_county": ${ trial_court.address.county }
       - "users1_name": ${ users[0] }
-      - "users1_birthdate": ${ format_date(users[0].birthdate, format='M/d/yyyy') }      
+      - "users_birthdate": ${ format_date(users[0].birthdate, format='M/d/yyyy') }      
       - "other_parties1_name": ${ other_parties[0] }
       - "other_parties1_birthdate": ${ format_date(other_parties[0].birthdate, format='M/d/yyyy') }
       - "users1_address_address": ${ users[0].address.line_one() }

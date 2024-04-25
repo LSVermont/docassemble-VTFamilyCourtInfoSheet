@@ -124,7 +124,7 @@ fields:
       minlength: |
         You cannot continue unless you agree to the terms of use.        
 continue button field: al_intro_screen
-s---
+---
 id: preview family_court_info_sheet
 question: |
   Preview your form before you sign it
