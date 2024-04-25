@@ -227,7 +227,13 @@ fields:
     none of the above: |
       Somewhere else
     default: users[0].address
-    disable others: True      
+    disable others: 
+      - other_parties[0].address.address
+      - other_parties[0].address.unit
+      - other_parties[0].address.city
+      - other_parties[0].address.state
+      - other_parties[0].address.zip
+      - other_parties[0].address.county
     show if:
       code: |
         defined("users[0].address.address")
