@@ -671,15 +671,15 @@ attachment:
       - "other_parties1_name": ${ other_parties[0] }
       - "other_parties1_birthdate": ${ format_date(other_parties[0].birthdate, format='M/d/yyyy') }
       - "users1_address_address": ${ users[0].address.line_one() }
-      - "users1_address_mailing": |
-          % if users1_mailing_address_different == True:
+      - "users1_address_mailing_faminfosheet": |
+          % if other_parties1_mailing_address_different:
           ${ users[0].mailing_address.on_one_line() }
           % endif
       - "users1_address_city": ${ users[0].address.city }
       - "users1_address_state": ${ users[0].address.state }
       - "users1_address_zip": ${ users[0].address.zip }            
       - "other_parties1_address_address": ${ other_parties[0].address.line_one() }          
-      - "other_parties1_address_mailing": |
+      - "other_parties1_address_mailing_faminfosheet": |
           % if other_parties1_mailing_address_different:
           ${ other_parties[0].mailing_address.on_one_line() }
           % endif
