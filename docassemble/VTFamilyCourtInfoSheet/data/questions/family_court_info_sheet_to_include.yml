@@ -32,7 +32,7 @@ code: |
   users[0].email
   users[0].birthdate
   set_progress(40)
-  users1_gets_public_assistance
+  users1_benefits_support
   user_has_attorney
   nav.set_section('defendant')
   set_progress(50)
@@ -165,17 +165,17 @@ fields:
   - note: |      
       Public assistance can include help from Vermont's Department of Economic Services such as Reach-Up, Dr. Dynasaur, Medicaid, or Post Secondary Education Stipend (PSE).
       
-      Check all that apply.
-
-  - "Gets public assistance": users1_gets_public_assistance
-    datatype: yesno
-    
-  - "Gets child support from any relationship": users1_gets_child_support
-    datatype: yesno
+  - "Choose at least one": users1_benefits_support
+    datatype: checkboxes
+    none of the above: False    
+    minlength: 1
+    choices:
+    - I get public assistance: users1_gets_public_assistance
+    - I get child support (from any relationship): users1_gets_child_support
+    - I don't get any of these: users1_no_benefits_or_support
 
   - note: |
       ${ collapse_template(office_of_child_support_contact) }
-
 ---
 id: Gather defendant name
 sets:
@@ -483,13 +483,23 @@ review:
       % if user_has_attorney == None:
         - Plaintiff has lawyer?: **Unknown**
       % endif
-  - Edit: users1_gets_public_assistance
+  - Edit: users1_benefits_support
     button: |
       - Plaintiff gets public assistance?:
-      **${ word(yesno(users1_gets_public_assistance)) }**
+      % if users1_benefits_support["users1_gets_public_assistance"]:
+      **Yes**
+      % endif
+      % if not users1_benefits_support["users1_gets_public_assistance"]:
+      **No**
+      % endif
 
       - Plaintiff gets child support?:
-      **${ word(yesno(users1_gets_child_support)) }**     
+      % if users1_benefits_support[" users1_gets_child_support"]:
+      **Yes**
+      % endif
+      % if not users1_benefits_support[" users1_gets_child_support"]:
+      **No**
+      % endif
   - note: | 
       ##Information about the defendant##      
   - Edit: other_parties.revisit
@@ -709,8 +719,8 @@ attachment:
             ${ users1_attorneys_phone_number }
             % endif
       - "OCS_filing_form_yes": ${ OCS_filing_form }
-      - "users1_gets_public_assistance": ${ users1_gets_public_assistance }
-      - "users1_gets_child_support": ${ users1_gets_child_support }
+      - "users1_gets_public_assistance": ${ users1_benefits_support["users1_gets_public_assistance"] }
+      - "users1_gets_child_support": ${ users1_benefits_support["users1_gets_child_support"] }
       - "other_parties1_gets_child_support": ${ other_parties1_gets_child_support }
       - "other_family_juv_probate_proceedings_yes": ${ other_family_juv_probate_proceedings }
       - "other_family_juv_probate_proceedings_no": ${ not other_family_juv_probate_proceedings }
