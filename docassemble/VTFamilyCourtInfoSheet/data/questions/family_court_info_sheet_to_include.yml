@@ -485,7 +485,9 @@ review:
       % endif
   - Edit: users1_benefits_support
     button: |
+      % if defined("users1_benefits_support"):
       - Plaintiff gets public assistance?:
+      
       % if users1_benefits_support["users1_gets_public_assistance"]:
       **Yes**
       % endif
@@ -494,11 +496,13 @@ review:
       % endif
 
       - Plaintiff gets child support?:
+      
       % if users1_benefits_support[" users1_gets_child_support"]:
       **Yes**
       % endif
       % if not users1_benefits_support[" users1_gets_child_support"]:
       **No**
+      % endif
       % endif
   - note: | 
       ##Information about the defendant##      
