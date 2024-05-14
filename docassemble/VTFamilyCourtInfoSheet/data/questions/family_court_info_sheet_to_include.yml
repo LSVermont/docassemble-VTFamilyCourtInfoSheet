@@ -686,7 +686,7 @@ attachment:
       - "other_parties1_birthdate": ${ format_date(other_parties[0].birthdate, format='M/d/yyyy') }
       - "users1_address_address": ${ users[0].address.line_one() }
       - "users1_address_mailing_faminfosheet": |
-          % if other_parties1_mailing_address_different:
+          % if users1_mailing_address_different:
           ${ users[0].mailing_address.on_one_line() }
           % endif
       - "users1_address_city": ${ users[0].address.city }
