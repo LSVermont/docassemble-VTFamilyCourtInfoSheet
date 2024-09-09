@@ -661,7 +661,11 @@ attachment:
       - "other_parties1_address_address": ${ other_parties[0].address.line_one() }          
       - "other_parties1_address_mailing_faminfosheet": |
           % if other_parties1_mailing_address_different:
+          % if other_parties_in_US:
           ${ other_parties[0].mailing_address.on_one_line() }
+          % else:
+          ${ other_parties[0].mailing_address.line_one() }${ other_parties[0].address.city }, ${ other_parties_non_US_state_country } ${ other_parties[0].address.zip }
+          % endif
           % endif
       - "other_parties1_address_city": ${ other_parties[0].address.city }
       - "other_parties1_address_state": |
