@@ -1,6 +1,6 @@
 import os
 import sys
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 from fnmatch import fnmatchcase
 from distutils.util import convert_path
 
@@ -44,7 +44,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.VTFamilyCourtInfoSheet',
-      version='1.1',
+      version='1.2',
       description=('Family court information sheet for Vermont'),
       long_description='# docassemble.BInfoSheetFamilyCourt\r\n\r\nFamily court information sheet\r\n\r\n## Author\r\n\r\nVTCourtForms by Legal Services Vermont\r\n\r\n',
       long_description_content_type='text/markdown',
@@ -52,9 +52,8 @@ setup(name='docassemble.VTFamilyCourtInfoSheet',
       author_email='ksurette@legalservicesvt.org',
       license='The MIT License',
       url='https://vtlawhelp.org/vtcourtforms',
-      packages=find_packages(),
-      namespace_packages=['docassemble'],
-      install_requires=['docassemble.ALToolbox>=0.11.1', 'docassemble.AssemblyLine>=3.1.0', 'docassemble.VTSharedYMLFile'],
+      packages=find_namespace_packages(),
+      install_requires=['docassemble.ALToolbox>=0.11.1', 'docassemble.AssemblyLine>=3.2.0', 'docassemble.VTSharedYMLFile'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/VTFamilyCourtInfoSheet/', package='docassemble.VTFamilyCourtInfoSheet'),
      )
