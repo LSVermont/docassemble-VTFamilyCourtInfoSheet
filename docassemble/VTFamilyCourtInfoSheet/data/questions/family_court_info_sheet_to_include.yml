@@ -655,7 +655,7 @@ attachment:
           % if users1_mailing_address_different:
           ${ users[0].mailing_address.on_one_line() }
           % endif
-      - "users1_address_city": ${ users[0].address.city }
+      - "users1_address_city_faminfosheet": ${ users[0].address.city }
       - "users1_address_state": ${ users[0].address.state }
       - "users1_address_zip_faminfosheet": ${ users[0].address.zip }            
       - "other_parties1_address_address": ${ other_parties[0].address.line_one() }          
@@ -667,7 +667,7 @@ attachment:
           ${ other_parties[0].mailing_address.line_one() } ${ other_parties[0].address.city }, ${ other_parties_non_US_state_country } ${ other_parties[0].address.zip }
           % endif
           % endif
-      - "other_parties1_address_city": ${ other_parties[0].address.city }
+      - "other_parties1_address_city_faminfosheet": ${ other_parties[0].address.city }
       - "other_parties1_address_state": |
           % if other_parties_in_US:
           ${ other_parties[0].address.state }
