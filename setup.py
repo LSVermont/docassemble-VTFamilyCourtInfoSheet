@@ -44,17 +44,16 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.VTFamilyCourtInfoSheet',
-      version='1.2',
+      version='1.3',
       description=('Family court information sheet for Vermont'),
       long_description='# docassemble.BInfoSheetFamilyCourt\r\n\r\nFamily court information sheet\r\n\r\n## Author\r\n\r\nVTCourtForms by Legal Services Vermont\r\n\r\n',
       long_description_content_type='text/markdown',
       author='VTCourtForms by Legal Services Vermont',
       author_email='ksurette@legalservicesvt.org',
-      license='The MIT License',
+      license='MIT',
       url='https://vtlawhelp.org/vtcourtforms',
       packages=find_namespace_packages(),
-      install_requires=['docassemble.ALToolbox>=0.11.1', 'docassemble.AssemblyLine>=3.2.0', 'docassemble.VTSharedYMLFile'],
+      install_requires=['docassemble.ALToolbox @ git+https://github.com/SuffolkLITLab/docassemble-ALToolbox.git@main', 'docassemble.AssemblyLine @ git+https://github.com/SuffolkLITLab/docassemble-AssemblyLine.git@main', 'docassemble.VTSharedYMLFile @ git+https://github.com/LSVermont/docassemble-VTSharedYMLFile.git@main'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/VTFamilyCourtInfoSheet/', package='docassemble.VTFamilyCourtInfoSheet'),
      )
-
