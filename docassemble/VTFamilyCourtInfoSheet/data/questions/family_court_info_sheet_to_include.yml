@@ -1,3 +1,4 @@
+###This to_include file is the one that is used in conjunction with the Divorce guided interview.###
 ---
 id: how_to_edit_answers
 question: |
@@ -659,13 +660,25 @@ attachment:
       - "users1_address_state": ${ users[0].address.state }
       - "users1_address_zip_faminfosheet": ${ users[0].address.zip }            
       - "other_parties1_address_address": ${ other_parties[0].address.line_one() }          
-      - "other_parties1_address_mailing_faminfosheet": |
+      - "other_parties1_address_address_mailing_faminfosheet": |
+          % if other_parties1_mailing_address_different:
+          ${ other_parties[0].mailing_address.address }
+          % endif
+      - "other_parties1_address_city_mailing_faminfosheet": |
+          % if other_parties1_mailing_address_different:
+          ${ other_parties[0].mailing_address.city }
+          % endif
+      - "other_parties1_address_state_faminfosheet": |
           % if other_parties1_mailing_address_different:
           % if other_parties_in_US:
-          ${ other_parties[0].mailing_address.on_one_line() }
+          ${ other_parties[0].mailing_address.state }
           % else:
-          ${ other_parties[0].mailing_address.line_one() } ${ other_parties[0].address.city }, ${ other_parties_non_US_state_country } ${ other_parties[0].address.zip }
+          ${ other_parties_non_US_state_country }
           % endif
+          % endif
+      - "other_parties1_address_zip_faminfosheet": |
+          % if other_parties1_mailing_address_different:
+          ${ other_parties[0].mailing_address.zip }
           % endif
       - "other_parties1_address_city_faminfosheet": ${ other_parties[0].address.city }
       - "other_parties1_address_state": |
