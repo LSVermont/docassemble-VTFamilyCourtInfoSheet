@@ -484,7 +484,7 @@ review:
         
         - Address: **${ item.address.on_one_line() }**
         
-      % if users1_mailing_address_different:
+      % if other_parties1_mailing_address_different:
         - Mailing: **${ item.mailing_address.on_one_line() }**
       % endif     
       % endfor   
@@ -652,9 +652,17 @@ attachment:
       - "other_parties1_name": ${ other_parties[0] }
       - "other_parties1_birthdate": ${ format_date(other_parties[0].birthdate, format='M/d/yyyy') }
       - "users1_address_address": ${ users[0].address.line_one() }
-      - "users1_address_mailing_faminfosheet": |
+      - "users1_address_address_mailing_faminfosheet": |
           % if users1_mailing_address_different:
-          ${ users[0].mailing_address.on_one_line() }
+          ${ users[0].mailing_address.address }
+          % endif
+      - "users1_address_city_mailing_faminfosheet": |
+          % if users1_mailing_address_different:
+          ${ users[0].mailing_address.city }
+          % endif
+      - "users1_address_zip_mailing_faminfosheet": |
+          % if users1_mailing_address_different:
+          ${ users[0].mailing_address.zip }
           % endif
       - "users1_address_city_faminfosheet": ${ users[0].address.city }
       - "users1_address_state": ${ users[0].address.state }
@@ -668,15 +676,7 @@ attachment:
           % if other_parties1_mailing_address_different:
           ${ other_parties[0].mailing_address.city }
           % endif
-      - "other_parties1_address_state_faminfosheet": |
-          % if other_parties1_mailing_address_different:
-          % if other_parties_in_US:
-          ${ other_parties[0].mailing_address.state }
-          % else:
-          ${ other_parties_non_US_state_country }
-          % endif
-          % endif
-      - "other_parties1_address_zip_faminfosheet": |
+      - "other_parties1_address_zip_mailing_faminfosheet": |
           % if other_parties1_mailing_address_different:
           ${ other_parties[0].mailing_address.zip }
           % endif
